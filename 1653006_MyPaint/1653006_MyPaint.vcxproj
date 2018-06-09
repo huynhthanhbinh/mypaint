@@ -166,7 +166,11 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="1653006_MyPaint.ico" />
+    <Image Include="bmp00001.bmp" />
     <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17134.0\um\x86\ComCtl32.Lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

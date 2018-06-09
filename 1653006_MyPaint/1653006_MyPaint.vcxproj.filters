@@ -48,5 +48,11 @@
     <Image Include="1653006_MyPaint.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="bmp00001.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17134.0\um\x86\ComCtl32.Lib" />
   </ItemGroup>
 </Project>
