@@ -166,7 +166,10 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="1653006_MyPaint.ico" />
+    <Image Include="bitmap1.bmp" />
     <Image Include="bmp00001.bmp" />
+    <Image Include="bmp00002.bmp" />
+    <Image Include="bmp00003.bmp" />
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>

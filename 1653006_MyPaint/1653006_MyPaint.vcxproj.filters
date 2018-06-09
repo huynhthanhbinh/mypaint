@@ -51,6 +51,15 @@
     <Image Include="bmp00001.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="bmp00002.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="bmp00003.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Library Include="C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17134.0\um\x86\ComCtl32.Lib" />
