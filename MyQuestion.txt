@@ -1,3 +1,4 @@
 1. Luc ro chuot vào vào menu item hay icon làm sao de hien Note
 2. Hien child window kieu Tab nhu Visual Studio hay Chrome
 3. Lam sao de khong can chua san khoang de hien thanh toolbar
+4. Add bitmap nhieu hình tra ve lan dau, lan sau phai cong don ?

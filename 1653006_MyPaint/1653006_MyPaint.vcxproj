@@ -166,10 +166,13 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="1653006_MyPaint.ico" />
-    <Image Include="bitmap1.bmp" />
-    <Image Include="bmp00001.bmp" />
-    <Image Include="bmp00002.bmp" />
-    <Image Include="bmp00003.bmp" />
+    <Image Include="Button_Colors.bmp" />
+    <Image Include="Button_Ellipse.bmp" />
+    <Image Include="Button_Fonts.bmp" />
+    <Image Include="Button_Line.bmp" />
+    <Image Include="Button_Rectangle.bmp" />
+    <Image Include="Button_Select.bmp" />
+    <Image Include="Button_Text.bmp" />
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>

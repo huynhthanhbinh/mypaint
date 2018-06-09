@@ -48,16 +48,25 @@
     <Image Include="1653006_MyPaint.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="bmp00001.bmp">
+    <Image Include="Button_Colors.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="bitmap1.bmp">
+    <Image Include="Button_Ellipse.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="bmp00002.bmp">
+    <Image Include="Button_Fonts.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="bmp00003.bmp">
+    <Image Include="Button_Line.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Button_Rectangle.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Button_Select.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Button_Text.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
