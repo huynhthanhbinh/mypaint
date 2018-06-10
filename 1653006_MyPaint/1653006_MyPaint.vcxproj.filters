@@ -69,8 +69,14 @@
     <Image Include="Button_Text.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Library Include="C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17134.0\um\x86\ComCtl32.Lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\ReadMe.txt" />
   </ItemGroup>
 </Project>
