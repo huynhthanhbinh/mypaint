@@ -2,3 +2,4 @@
 2. Hien child window kieu Tab nhu Visual Studio hay Chrome
 3. Lam sao de khong can chua san khoang de hien thanh toolbar
 4. Add bitmap nhieu hình tra ve lan dau, lan sau phai cong don ?
+5. Cach hide group of button toolbar: for ex: Edit Toolbar
