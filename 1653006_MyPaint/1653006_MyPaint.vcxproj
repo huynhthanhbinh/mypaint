@@ -166,7 +166,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="1653006_MyPaint.ico" />
-    <Image Include="bitmap1.bmp" />
     <Image Include="Button_Colors.bmp" />
     <Image Include="Button_Ellipse.bmp" />
     <Image Include="Button_Fonts.bmp" />
@@ -180,7 +179,8 @@
     <Text Include="..\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="ComCtl32.Lib" />
+    <Library Include="x64\ComCtl32.Lib" />
+    <Library Include="x86\ComCtl32.Lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
