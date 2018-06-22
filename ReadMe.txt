@@ -1,4 +1,4 @@
-1653006
+﻿1653006
 Huynh Thanh Binh
 16CLC1
 FIT - HCMUS
@@ -8,26 +8,28 @@ Course: Programming Windows
 
 P1 ( 2018/Jun/10th )
 
-Da hoan thanh: Tat ca cac yeu cua de bai P1
-- Tao UI cho ung dung
-- Tao menu nhu yeu cau
+Debug: x64 Local Windows Debugger 
+
+Đã hoàn thành: Tất cả các yêu cầu của đề bài P1
+- Tạo UI cho ứng dụng
+- Tạo menu như yêu cầu
 - Menu item Checkbox Default khi create
-- Tao toolbar, show toolbar khi create
+- Tạo toolbar, show toolbar khi create
 
-Khac /Lam them:
+Khác /Làm thêm:
 - Add toolbar user define button
-- Luu tru project tren repository cua BitBucket
+- Lưu trữ project trên repository của BitBucket
 
 
-Link Bitbucket <in private mode at the moment>
+Link Bitbucket << in private mode at the moment >>
 https://bitbucket.org/huynhthanhbinh1998/1653006_mypaint/src/master/
 
 
-Tham khao:
-- Slide bai giang mon hoc
-- Bai giang tren lop hoc
+Tham khảo:
+- Slide bài giảng môn học
+- Bài giảng trên lớp học
 - MSDN 
 
 
-Phien ban Visual Studio:
-- VS2017 Community v15.7.3
+Phiên bản Visual Studio:
+- VS2017 Community v15.7.4
