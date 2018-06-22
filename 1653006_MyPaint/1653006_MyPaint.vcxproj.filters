@@ -75,6 +75,6 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="x86\ComCtl32.Lib" />
-    <Library Include="x64\ComCtl32.Lib" />
+    <Library Include="x86\ComDlg32.Lib" />
   </ItemGroup>
 </Project>

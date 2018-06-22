@@ -8,13 +8,14 @@ Course: Programming Windows
 
 P1 ( 2018/Jun/10th )
 
-Debug: x64 Local Windows Debugger 
+Debug: x86 Local Windows Debugger 
 
 Đã hoàn thành: Tất cả các yêu cầu của đề bài P1
 - Tạo UI cho ứng dụng
 - Tạo menu như yêu cầu
 - Menu item Checkbox Default khi create
 - Tạo toolbar, show toolbar khi create
+- Đã solve các warnings + errors (2018-Jun-23rd)
 
 Khác /Làm thêm:
 - Add toolbar user define button
