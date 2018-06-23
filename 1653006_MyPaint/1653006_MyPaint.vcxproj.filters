@@ -72,6 +72,9 @@
     <Image Include="MyPaint_Icon.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="MyPaint_Bitmap.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\ReadMe.txt" />

@@ -173,6 +173,7 @@
     <Image Include="Button_Rectangle.bmp" />
     <Image Include="Button_Select.bmp" />
     <Image Include="Button_Text.bmp" />
+    <Image Include="MyPaint_Bitmap.bmp" />
     <Image Include="MyPaint_Icon.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
