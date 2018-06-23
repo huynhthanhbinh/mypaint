@@ -69,6 +69,9 @@
     <Image Include="Button_Text.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="MyPaint_Icon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\ReadMe.txt" />
