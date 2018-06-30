@@ -1,3 +1,5 @@
 ﻿  1653006_MyPaint.cpp
-e:\1653006_mypaint\1653006_mypaint\1653006_mypaint.cpp(756): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+e:\1653006_mypaint\1653006_mypaint\1653006_mypaint.cpp(30): warning C4005: 'TEXT': macro redefinition
+  c:\program files (x86)\windows kits\10\include\10.0.17134.0\um\winnt.h(584): note: see previous definition of 'TEXT'
+e:\1653006_mypaint\1653006_mypaint\1653006_mypaint.cpp(765): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
   1653006_MyPaint.vcxproj -> E:\1653006_MyPaint\Debug\1653006_MyPaint.exe
