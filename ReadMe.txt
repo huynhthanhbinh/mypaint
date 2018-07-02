@@ -1,4 +1,15 @@
-﻿1653006
+﻿
+
+
+
+SetTextColor()
+
+kế thừa đa hình
+
+
+
+
+1653006
 Huynh Thanh Binh
 16CLC1
 FIT - HCMUS
