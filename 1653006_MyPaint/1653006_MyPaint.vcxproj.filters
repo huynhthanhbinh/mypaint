@@ -35,6 +35,9 @@
     <ClCompile Include="1653006_MyPaint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="1653006_MyToolbar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="1653006_MyPaint.rc">
