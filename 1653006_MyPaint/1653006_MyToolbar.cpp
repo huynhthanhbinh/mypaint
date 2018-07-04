@@ -2,7 +2,7 @@
 // Huỳnh Thanh Bình
 // 16CLC1
 
-#include "1653006_MyPaint.h"
+#include "1653006_MyToolbar.h"
 #include "stdafx.h"
 
 #define IMAGE_WIDTH			18
@@ -214,4 +214,14 @@ void CheckToolbarDraw(HWND hToolBarWnd, UINT MenuItemID) {
 	for (UINT i = ID_DRAW_LINE; i <= ID_DRAW_SELECTOBJECT; ++i) {
 		SendMessage(hToolBarWnd, TB_SETSTATE, i, TBSTATE_ENABLED);
 	} SendMessage(hToolBarWnd, TB_SETSTATE, MenuItemID, TBSTATE_ENABLED | TBSTATE_CHECKED);
+}
+void ShowNotice(HWND hWnd, const WCHAR* MenuCaption) { // Huỳnh Thanh Bình
+	WCHAR mess[40] = L"Ban vua chon menu ";
+	wcscat_s(mess, MenuCaption);
+	MessageBox(hWnd, mess, L"NOTICE", MB_OK);
+}
+void addViewColor() {
+	
+
+	
 }

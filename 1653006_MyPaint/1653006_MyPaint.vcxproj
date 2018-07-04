@@ -147,12 +147,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="1653006_MyObject.h" />
     <ClInclude Include="1653006_MyPaint.h" />
+    <ClInclude Include="1653006_MyToolbar.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="1653006_MyObject.cpp" />
     <ClCompile Include="1653006_MyPaint.cpp" />
     <ClCompile Include="1653006_MyToolbar.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -174,6 +177,7 @@
     <Image Include="Button_Rectangle.bmp" />
     <Image Include="Button_Select.bmp" />
     <Image Include="Button_Text.bmp" />
+    <Image Include="Button_ViewColor.bmp" />
     <Image Include="MyPaint_Bitmap.bmp" />
     <Image Include="MyPaint_Icon.ico" />
     <Image Include="small.ico" />

@@ -27,6 +27,12 @@
     <ClInclude Include="1653006_MyPaint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="1653006_MyObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="1653006_MyToolbar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -36,6 +42,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="1653006_MyToolbar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="1653006_MyObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -76,6 +85,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="MyPaint_Bitmap.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Button_ViewColor.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
