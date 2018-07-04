@@ -2,7 +2,6 @@
 #define _MY_TOOLBAR_H_
 
 #include "stdafx.h"
-#include "1653006_MyPaint.h"
 
 // TOOLBAR
 void CheckMenuDraw(HWND hWnd, UINT MenuItemID);

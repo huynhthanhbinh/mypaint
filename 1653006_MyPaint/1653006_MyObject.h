@@ -2,7 +2,38 @@
 #define _MY_OBJECT_H_
 
 #include "stdafx.h"
-#include "1653006_MyPaint.h"
+#include <vector>
+
+struct Position {
+	int x1, y1, x2, y2;
+};
+
+class Page {
+public:
+	//HWND handle;
+	vector <Position> line;
+	vector <Position> ellipse;
+	vector <Position> rectangle;
+	//vector for text ???
+
+	~Page() {
+		line.clear();
+		ellipse.clear();
+		rectangle.clear();
+		//vector for text ???
+	}
+};
+
+struct CHILD_WND_DATA {
+	BYTE wndType;
+	HWND hWnd;
+	COLORREF rgbColor = RGB(0, 0, 0);
+	LOGFONT logFont;
+
+	//vector <Object*> arrObject;
+
+	Page page;
+};
 
 class Object {
 public:
