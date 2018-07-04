@@ -1,37 +1,31 @@
 ﻿#include "stdafx.h"
 #include "1653006_MyObject.h"
 
-void MyLine::draw(HWND hWnd) {
-	HDC hdc = GetDC(hWnd);
-	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
-	HPEN hPen = CreatePen(PS_SOLID, 2, data->rgbColor);
+void MyLine::draw(HWND hWnd, HDC hdc) {
+	HPEN hPen = CreatePen(PS_SOLID, 2, rgbColor);
 	SelectObject(hdc, hPen);
-	
+	SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
+
 	MoveToEx(hdc, pos.x1, pos.y1, NULL);
 	LineTo(hdc, pos.x2, pos.y2);
-	ReleaseDC(hWnd, hdc);
 }
-void MyRectangle::draw(HWND hWnd) {
-	HDC hdc = GetDC(hWnd);
-	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
-	HPEN hPen = CreatePen(PS_SOLID, 2, data->rgbColor);
+void MyRectangle::draw(HWND hWnd, HDC hdc) {
+	HPEN hPen = CreatePen(PS_SOLID, 2, rgbColor);
 	SelectObject(hdc, hPen);
+	SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
 
 	MoveToEx(hdc, pos.x1, pos.y1, NULL);
 	Rectangle(hdc, pos.x1, pos.y1, pos.x2, pos.y2);
-	ReleaseDC(hWnd, hdc);
 }
-void MyEllipse::draw(HWND hWnd) {
-	HDC hdc = GetDC(hWnd);
-	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
-	HPEN hPen = CreatePen(PS_SOLID, 2, data->rgbColor);
+void MyEllipse::draw(HWND hWnd, HDC hdc) {
+	HPEN hPen = CreatePen(PS_SOLID, 2, rgbColor);
 	SelectObject(hdc, hPen);
+	SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
 
 	MoveToEx(hdc, pos.x1, pos.y1, NULL);
 	Ellipse(hdc, pos.x1, pos.y1, pos.x2, pos.y2);
-	ReleaseDC(hWnd, hdc);
 }
-void MyText::draw(HWND hWnd) {
+void MyText::draw(HWND hWnd, HDC hdc) {
 
 }
 
@@ -44,24 +38,9 @@ void OnPaint(HWND hWnd) {
 	//HBRUSH hBrush = CreateSolidBrush(RGB(0, 255, 0));
 	//SelectObject(hdc, hBrush);
 
-
 	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
-	HPEN hPen = CreatePen(PS_SOLID, 2, data->rgbColor);
-	SelectObject(hdc, hPen);
-	SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
-
-
-	for (unsigned int i = 0; i < data->page.line.size(); i++) {
-		MoveToEx(hdc, data->page.line[i].x1, data->page.line[i].y1, NULL);
-		LineTo(hdc, data->page.line[i].x2, data->page.line[i].y2);
-	}
-	for (unsigned int i = 0; i < data->page.rectangle.size(); i++) {
-		//MoveToEx(hdc, data->page.rectangle[i].x1, data->page.rectangle[i].y1, NULL);
-		Rectangle(hdc, data->page.rectangle[i].x1, data->page.rectangle[i].y1, data->page.rectangle[i].x2, data->page.rectangle[i].y2);
-	}
-	for (unsigned int i = 0; i < data->page.ellipse.size(); i++) {
-		//MoveToEx(hdc, data->page.ellipse[i].x1, data->page.ellipse[i].y1, NULL);
-		Ellipse(hdc, data->page.ellipse[i].x1, data->page.ellipse[i].y1, data->page.ellipse[i].x2, data->page.ellipse[i].y2);
+	for (unsigned int i = 0; i < data->arrObject.size(); i++) {
+		data->arrObject[i]->draw(hWnd, hdc);
 	}
 
 	ReleaseDC(hWnd, hdc);
@@ -72,21 +51,37 @@ void OnLButtonUp(Position pos, HWND hWnd, int mode) {
 	WCHAR s[100];
 	switch (mode) {
 	case LINE:
-		if (!checkSamePoint(pos))
-			data->page.line.push_back(pos);
+		if (!checkSamePoint(pos)) {
+			//data->page.line.push_back(pos);
+			MyLine *l = new MyLine; 
+			l->pos = pos;
+			l->type = LINE;
+			l->rgbColor = data->rgbColor;
+			data->arrObject.push_back(l);
+		}
 		break;
 	case RECTANGLE:
-		if (!checkSamePoint(pos))
-			data->page.rectangle.push_back(pos);
+		if (!checkSamePoint(pos)) {
+			//data->page.rectangle.push_back(pos);
+			MyRectangle * r = new MyRectangle;
+			r->pos = pos;
+			r->type = RECTANGLE;
+			r->rgbColor = data->rgbColor;
+			data->arrObject.push_back(r);
+		}
 		break;
 	case ELLIPSE:
-		if (!checkSamePoint(pos))
-			data->page.ellipse.push_back(pos);
+		if (!checkSamePoint(pos)) {
+			//data->page.ellipse.push_back(pos);
+			MyEllipse * e = new MyEllipse;
+			e->pos = pos;
+			e->type = ELLIPSE;
+			e->rgbColor = data->rgbColor;
+			data->arrObject.push_back(e);
+		}
 		break;
 	}
-	wsprintf(s, L"\n\n\nnLine: %d \nnRectangle: %d \nnEllipse: %d\n\n\n",
-		data->page.line.size(), data->page.rectangle.size(), data->page.ellipse.size());
-	OutputDebugString(s);
+	wsprintf(s, L"\n\n\nNumbers of object: %d\n\n\n", data->arrObject.size()); OutputDebugString(s);
 	return;
 }
 void OnLButtonDown(HWND hWnd, LPARAM lParam, Position& pos) {
@@ -138,4 +133,9 @@ bool checkSamePoint(Position pos) { // leak memory !!!
 	if (pos.x1 == pos.x2 && pos.y1 == pos.y2)
 		return true;
 	return false;
+}
+bool clearObjArray(HWND hWndClient) {
+	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWndClient, 0);
+	data->arrObject.clear();
+	return true;
 }

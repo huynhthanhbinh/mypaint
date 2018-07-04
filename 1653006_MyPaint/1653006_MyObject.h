@@ -8,20 +8,12 @@ struct Position {
 	int x1, y1, x2, y2;
 };
 
-class Page {
+class Object {
 public:
-	//HWND handle;
-	vector <Position> line;
-	vector <Position> ellipse;
-	vector <Position> rectangle;
-	//vector for text ???
-
-	~Page() {
-		line.clear();
-		ellipse.clear();
-		rectangle.clear();
-		//vector for text ???
-	}
+	int type;
+	Position pos;
+	COLORREF rgbColor = RGB(0, 0, 0);
+	virtual void draw(HWND hWnd, HDC hdc) = 0;
 };
 
 struct CHILD_WND_DATA {
@@ -30,38 +22,28 @@ struct CHILD_WND_DATA {
 	COLORREF rgbColor = RGB(0, 0, 0);
 	LOGFONT logFont;
 
-	//vector <Object*> arrObject;
-
-	Page page;
-};
-
-class Object {
-public:
-	int type;
-	Position pos;
-	COLORREF rgbColor = RGB(0, 0, 0);
-	virtual void draw(HWND hWnd) = 0;
+	vector <Object*> arrObject;
 };
 
 class MyLine : public Object {
 public:
-	void draw(HWND hWnd);
+	void draw(HWND hWnd, HDC hdc);
 };
 
 class MyRectangle : public Object {
 public:
-	void draw(HWND hWnd);
+	void draw(HWND hWnd, HDC hdc);
 };
 
 class MyEllipse : public Object {
 public:
-	void draw(HWND hWnd);
+	void draw(HWND hWnd, HDC hdc);
 };
 
 class MyText : public Object {
 public:
 	LOGFONT logFont;
-	void draw(HWND hWnd);
+	void draw(HWND hWnd, HDC hdc);
 };
 
 void OnPaint(HWND hWnd);
@@ -70,5 +52,6 @@ void OnLButtonDown(HWND hWnd, LPARAM lParam, Position& pos);
 void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode);
 bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode);
 bool checkSamePoint(Position pos);
+bool clearObjArray(HWND hWndClient);
 
 #endif // !_MY_OBJECT_H_
