@@ -1,3 +1,7 @@
+﻿// 1653006
+// Huỳnh Thanh Bình
+// 16CLC1
+
 #ifndef _MY_TOOLBAR_H_
 #define _MY_TOOLBAR_H_
 

@@ -1,4 +1,8 @@
-﻿#include "stdafx.h"
+﻿// 1653006
+// Huỳnh Thanh Bình
+// 16CLC1
+
+#include "stdafx.h"
 #include "1653006_MyObject.h"
 
 void MyLine::draw(HWND hWnd, HDC hdc) {
