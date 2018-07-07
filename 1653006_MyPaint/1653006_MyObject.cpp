@@ -156,6 +156,7 @@ void OnLButtonDown(HWND hWnd, LPARAM lParam, Position& pos) {
 	//ReleaseDC(hWnd, hdc);
 }
 void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode) {
+	if (pos.x1 == 0 && pos.y1 == 0) return;
 	if ((wParam & MK_LBUTTON) == MK_LBUTTON) {
 		HDC dc = GetDC(hWnd);
 		SetROP2(dc, R2_NOTXORPEN);
@@ -165,6 +166,10 @@ void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mod
 		// Cập nhật điểm mới !!!
 		pos.x2 = LOWORD(lParam);
 		pos.y2 = HIWORD(lParam);
+
+		WCHAR s[100]; 
+		wsprintf(s, L"\n\n\nx1 = %d, y1 = %d\n\n\n", pos.x1, pos.y1);
+		OutputDebugString(s);
 
 		// Vẽ đường thẳng mới (do mode NOT_XOR)
 		drawObject(hWnd, dc, pos, mode);

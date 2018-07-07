@@ -69,9 +69,9 @@ bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode);
 bool checkSamePoint(Position pos);
 bool clearObjArray(HWND hWndClient);
 
-void OnOpen(HWND hWnd, vector <Object*>& arrObject);
+void OnOpen(HWND hWnd);
 void OnSave(HWND hWnd);
-void saveFile(CHILD_WND_DATA* data, LPTSTR szFile);
+void saveFile(vector <Object*>  arrObject, LPTSTR szFile);
 void openFile(vector <Object*>& arrObject, LPTSTR szFile);
 
 #endif // !_MY_OBJECT_H_
