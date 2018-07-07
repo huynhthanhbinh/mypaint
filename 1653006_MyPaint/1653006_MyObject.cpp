@@ -12,6 +12,7 @@ void MyLine::draw(HWND hWnd, HDC hdc) {
 
 	MoveToEx(hdc, pos.x1, pos.y1, NULL);
 	LineTo(hdc, pos.x2, pos.y2);
+	DeleteObject(hPen);
 }
 void MyRectangle::draw(HWND hWnd, HDC hdc) {
 	HPEN hPen = CreatePen(PS_SOLID, 2, rgbColor);
@@ -20,6 +21,7 @@ void MyRectangle::draw(HWND hWnd, HDC hdc) {
 
 	MoveToEx(hdc, pos.x1, pos.y1, NULL);
 	Rectangle(hdc, pos.x1, pos.y1, pos.x2, pos.y2);
+	DeleteObject(hPen);
 }
 void MyEllipse::draw(HWND hWnd, HDC hdc) {
 	HPEN hPen = CreatePen(PS_SOLID, 2, rgbColor);
@@ -28,8 +30,63 @@ void MyEllipse::draw(HWND hWnd, HDC hdc) {
 
 	MoveToEx(hdc, pos.x1, pos.y1, NULL);
 	Ellipse(hdc, pos.x1, pos.y1, pos.x2, pos.y2);
+	DeleteObject(hPen);
 }
 void MyText::draw(HWND hWnd, HDC hdc) {
+
+}
+void MyLine::save(fstream& f) {
+	//f << type << pos.x1 << pos.y1 << pos.x2 << pos.y2 << rgbColor << endl;
+	f.write((char*)&type    , sizeof(int));
+	f.write((char*)&pos.x1  , sizeof(int));
+	f.write((char*)&pos.y1  , sizeof(int));
+	f.write((char*)&pos.x2  , sizeof(int));
+	f.write((char*)&pos.y2  , sizeof(int));
+	f.write((char*)&rgbColor, sizeof(rgbColor));
+}
+void MyRectangle::save(fstream& f) {
+	//f << type << pos.x1 << pos.y1 << pos.x2 << pos.y2 << rgbColor << endl;
+	f.write((char*)&type, sizeof(int));
+	f.write((char*)&pos.x1, sizeof(int));
+	f.write((char*)&pos.y1, sizeof(int));
+	f.write((char*)&pos.x2, sizeof(int));
+	f.write((char*)&pos.y2, sizeof(int));
+	f.write((char*)&rgbColor, sizeof(rgbColor));
+}
+void MyEllipse::save(fstream& f) {
+	//f << type << pos.x1 << pos.y1 << pos.x2 << pos.y2 << rgbColor << endl;
+	f.write((char*)&type, sizeof(int));
+	f.write((char*)&pos.x1, sizeof(int));
+	f.write((char*)&pos.y1, sizeof(int));
+	f.write((char*)&pos.x2, sizeof(int));
+	f.write((char*)&pos.y2, sizeof(int));
+	f.write((char*)&rgbColor, sizeof(rgbColor));
+}
+void MyText::save(fstream& f) {
+
+}
+void MyLine::open(fstream& f) {
+	f.read((char*)&pos.x1, sizeof(int));
+	f.read((char*)&pos.y1, sizeof(int));
+	f.read((char*)&pos.x2, sizeof(int));
+	f.read((char*)&pos.y2, sizeof(int));
+	f.read((char*)&rgbColor, sizeof(rgbColor));
+}
+void MyRectangle::open(fstream& f) {
+	f.read((char*)&pos.x1, sizeof(int));
+	f.read((char*)&pos.y1, sizeof(int));
+	f.read((char*)&pos.x2, sizeof(int));
+	f.read((char*)&pos.y2, sizeof(int));
+	f.read((char*)&rgbColor, sizeof(rgbColor));
+}
+void MyEllipse::open(fstream& f) {
+	f.read((char*)&pos.x1, sizeof(int));
+	f.read((char*)&pos.y1, sizeof(int));
+	f.read((char*)&pos.x2, sizeof(int));
+	f.read((char*)&pos.y2, sizeof(int));
+	f.read((char*)&rgbColor, sizeof(rgbColor));
+}
+void MyText::open(fstream& f) {
 
 }
 
@@ -124,12 +181,15 @@ bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode) {
 	switch (mode) {
 	case LINE:
 		LineTo(dc, pos.x2, pos.y2);
+		DeleteObject(hPen);
 		return true;
 	case RECTANGLE:
 		Rectangle(dc, pos.x1, pos.y1, pos.x2, pos.y2);
+		DeleteObject(hPen);
 		return true;
 	case ELLIPSE:
 		Ellipse(dc, pos.x1, pos.y1, pos.x2, pos.y2);
+		DeleteObject(hPen);
 		return true;
 	} return false;
 }
@@ -143,3 +203,4 @@ bool clearObjArray(HWND hWndClient) {
 	data->arrObject.clear();
 	return true;
 }
+

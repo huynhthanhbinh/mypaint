@@ -6,6 +6,7 @@
 #define _MY_OBJECT_H_
 
 #include "stdafx.h"
+#include <fstream>
 #include <vector>
 
 struct Position {
@@ -18,6 +19,8 @@ public:
 	Position pos;
 	COLORREF rgbColor = RGB(0, 0, 0);
 	virtual void draw(HWND hWnd, HDC hdc) = 0;
+	virtual void save(fstream& f) = 0;
+	virtual void open(fstream& f) = 0;
 };
 
 struct CHILD_WND_DATA {
@@ -32,22 +35,30 @@ struct CHILD_WND_DATA {
 class MyLine : public Object {
 public:
 	void draw(HWND hWnd, HDC hdc);
+	void save(fstream& f);
+	void open(fstream& f);
 };
 
 class MyRectangle : public Object {
 public:
 	void draw(HWND hWnd, HDC hdc);
+	void save(fstream& f);
+	void open(fstream& f);
 };
 
 class MyEllipse : public Object {
 public:
 	void draw(HWND hWnd, HDC hdc);
+	void save(fstream& f);
+	void open(fstream& f);
 };
 
 class MyText : public Object {
 public:
 	LOGFONT logFont;
 	void draw(HWND hWnd, HDC hdc);
+	void save(fstream& f);
+	void open(fstream& f);
 };
 
 void OnPaint(HWND hWnd);
@@ -57,5 +68,10 @@ void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mod
 bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode);
 bool checkSamePoint(Position pos);
 bool clearObjArray(HWND hWndClient);
+
+void OnOpen(HWND hWnd, vector <Object*>& arrObject);
+void OnSave(HWND hWnd);
+void saveFile(CHILD_WND_DATA* data, LPTSTR szFile);
+void openFile(vector <Object*>& arrObject, LPTSTR szFile);
 
 #endif // !_MY_OBJECT_H_
