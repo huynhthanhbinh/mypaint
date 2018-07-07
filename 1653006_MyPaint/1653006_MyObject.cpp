@@ -147,13 +147,13 @@ void OnLButtonUp(Position pos, HWND hWnd, int mode) {
 }
 void OnLButtonDown(HWND hWnd, LPARAM lParam, Position& pos) {
 	// Muốn xài các hàm Win API về đồ họa phải khai báo HDC trước (WM_PAINT: khai báo sẵn)
-	HDC hdc;           // Handle of Device Context
-	hdc = GetDC(hWnd); // ...
+	//HDC hdc;           // Handle of Device Context
+	//hdc = GetDC(hWnd); // ...
 
 	pos.x1 = pos.x2 = LOWORD(lParam);
 	pos.y1 = pos.y2 = HIWORD(lParam);
 
-	ReleaseDC(hWnd, hdc);
+	//ReleaseDC(hWnd, hdc);
 }
 void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode) {
 	if ((wParam & MK_LBUTTON) == MK_LBUTTON) {
