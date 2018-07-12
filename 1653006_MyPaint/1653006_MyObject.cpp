@@ -156,7 +156,7 @@ void OnLButtonDown(HWND hWnd, LPARAM lParam, Position& pos) {
 	//ReleaseDC(hWnd, hdc);
 }
 void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode) {
-	if (pos.x1 == 0 && pos.y1 == 0) return;
+	//if (pos.x1 == 0 && pos.y1 == 0) return;
 	if ((wParam & MK_LBUTTON) == MK_LBUTTON) {
 		HDC dc = GetDC(hWnd);
 		SetROP2(dc, R2_NOTXORPEN);

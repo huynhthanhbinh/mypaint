@@ -1,6 +1,7 @@
-1. Luc ro chuot vào vào menu item hay icon làm sao de hien Note
-2. Hien child window kieu Tab nhu Visual Studio hay Chrome
-3. Lam sao de khong can chua san khoang de hien thanh toolbar
-4. Add bitmap nhieu hình tra ve lan dau, lan sau phai cong don ?
-5. Cach hide group of button toolbar: for ex: Edit Toolbar
-6. Chon line button on toolbar --> Howto Checked / Elected ???
+1653006
+Huynh Thanh Binh
+
+1. Problem Keo chuot qua nhieu window ???
+2. Problem Open .drw by double click in MyPaint  ???
+3. How to open .drw file in file explorer ???
+4. Hide group of toolbar button

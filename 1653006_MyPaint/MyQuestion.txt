@@ -1,0 +1,2 @@
+1. Luc ro chuot vào vào menu item hay icon làm sao de hien Note
+2. Hien child window kieu Tab nhu Visual Studio hay Chrome
