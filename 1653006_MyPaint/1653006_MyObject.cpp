@@ -107,13 +107,16 @@ void OnPaint(HWND hWnd) {
 	ReleaseDC(hWnd, hdc);
 	EndPaint(hWnd, &ps);
 }
-void OnLButtonUp(Position pos, HWND hWnd, int mode) {
+void OnLButtonUp(Position pos, HWND hWnd, int mode, bool& mouse_down) {
+	ClipCursor(NULL); //release the mouse cursor
+	ReleaseCapture(); //release the mouse capture
+	mouse_down = false;
+
 	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
 	WCHAR s[100];
 	switch (mode) {
 	case LINE:
 		if (!checkSamePoint(pos)) {
-			//data->page.line.push_back(pos);
 			MyLine *l = new MyLine; 
 			l->pos = pos;
 			l->type = LINE;
@@ -123,7 +126,6 @@ void OnLButtonUp(Position pos, HWND hWnd, int mode) {
 		break;
 	case RECTANGLE:
 		if (!checkSamePoint(pos)) {
-			//data->page.rectangle.push_back(pos);
 			MyRectangle * r = new MyRectangle;
 			r->pos = pos;
 			r->type = RECTANGLE;
@@ -133,7 +135,6 @@ void OnLButtonUp(Position pos, HWND hWnd, int mode) {
 		break;
 	case ELLIPSE:
 		if (!checkSamePoint(pos)) {
-			//data->page.ellipse.push_back(pos);
 			MyEllipse * e = new MyEllipse;
 			e->pos = pos;
 			e->type = ELLIPSE;
@@ -145,46 +146,51 @@ void OnLButtonUp(Position pos, HWND hWnd, int mode) {
 	wsprintf(s, L"\n\n\nNumbers of object: %d\n\n\n", data->arrObject.size()); OutputDebugString(s);
 	return;
 }
-void OnLButtonDown(HWND hWnd, LPARAM lParam, Position& pos) {
-	// Muốn xài các hàm Win API về đồ họa phải khai báo HDC trước (WM_PAINT: khai báo sẵn)
-	//HDC hdc;           // Handle of Device Context
-	//hdc = GetDC(hWnd); // ...
-
+void OnLButtonDown(HWND hWnd, LPARAM lParam, Position& pos, bool& mouse_down) {
+	SetCapture(hWnd); // Capture mouse input
+	RECT rect;
+	POINT upperleft, lowerright;
+	GetClientRect(hWnd, &rect);
+	upperleft.x = rect.left;
+	upperleft.y = rect.top;
+	lowerright.x = rect.right + 1;
+	lowerright.y = rect.bottom + 1;
+	ClientToScreen(hWnd, &upperleft);
+	ClientToScreen(hWnd, &lowerright);
+	SetRect(&rect, upperleft.x, upperleft.y, lowerright.x, lowerright.y);
+	ClipCursor(&rect);
+	
 	pos.x1 = pos.x2 = LOWORD(lParam);
 	pos.y1 = pos.y2 = HIWORD(lParam);
-
-	//ReleaseDC(hWnd, hdc);
+	mouse_down = true;
 }
-void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode) {
-	//if (pos.x1 == 0 && pos.y1 == 0) return;
-	if ((wParam & MK_LBUTTON) == MK_LBUTTON) {
-		HDC dc = GetDC(hWnd);
-		SetROP2(dc, R2_NOTXORPEN);
+void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode, bool mouse_down) {
+	//if ((wParam & MK_LBUTTON) == MK_LBUTTON) {
+	if (mouse_down) {
+		HDC hdc = GetDC(hWnd);
+		SetROP2(hdc, R2_NOTXORPEN);
 
-		drawObject(hWnd, dc, pos, mode);
+		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
+		HPEN hPen = CreatePen(PS_SOLID, 2, data->rgbColor);
+		SelectObject(hdc, hPen);
+
+		// Vẽ đường thẳng cũ 
+		drawObject(hWnd, hdc, pos, mode, hPen);
 
 		// Cập nhật điểm mới !!!
 		pos.x2 = LOWORD(lParam);
 		pos.y2 = HIWORD(lParam);
 
-		WCHAR s[100]; 
-		wsprintf(s, L"\n\n\nx1 = %d, y1 = %d\n\n\n", pos.x1, pos.y1);
-		OutputDebugString(s);
-
 		// Vẽ đường thẳng mới (do mode NOT_XOR)
-		drawObject(hWnd, dc, pos, mode);
+		drawObject(hWnd, hdc, pos, mode, hPen);
 
-		ReleaseDC(hWnd, dc);
+		ReleaseDC(hWnd, hdc);
 	}
 }
-bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode) {
-	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
-	HPEN hPen = CreatePen(PS_SOLID, 2, data->rgbColor);
-	SelectObject(dc, hPen);
-
-	MoveToEx(dc, pos.x1, pos.y1, NULL);
+bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode, HPEN hPen) {
 	switch (mode) {
 	case LINE:
+		MoveToEx(dc, pos.x1, pos.y1, NULL);
 		LineTo(dc, pos.x2, pos.y2);
 		DeleteObject(hPen);
 		return true;

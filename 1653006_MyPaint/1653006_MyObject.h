@@ -62,10 +62,10 @@ public:
 };
 
 void OnPaint(HWND hWnd);
-void OnLButtonUp(Position pos, HWND hWnd, int mode);
-void OnLButtonDown(HWND hWnd, LPARAM lParam, Position& pos);
-void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode);
-bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode);
+void OnLButtonUp(Position pos, HWND hWnd, int mode, bool& mouse_down);
+void OnLButtonDown(HWND hWnd, LPARAM lParam, Position& pos, bool& mouse_down);
+void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode, bool mouse_down);
+bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode, HPEN hPen);
 bool checkSamePoint(Position pos);
 bool clearObjArray(HWND hWndClient);
 
