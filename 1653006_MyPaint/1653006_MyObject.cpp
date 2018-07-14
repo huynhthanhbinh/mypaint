@@ -95,10 +95,6 @@ void OnPaint(HWND hWnd) {
 	PAINTSTRUCT ps;
 	HDC hdc = BeginPaint(hWnd, &ps);
 
-	/*RECT rect; GetClientRect(hWnd, &rect);*/
-	//HBRUSH hBrush = CreateSolidBrush(RGB(0, 255, 0));
-	//SelectObject(hdc, hBrush);
-
 	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
 	for (unsigned int i = 0; i < data->arrObject.size(); i++) {
 		data->arrObject[i]->draw(hWnd, hdc);
@@ -165,8 +161,10 @@ void OnLButtonDown(HWND hWnd, LPARAM lParam, Position& pos, bool& mouse_down) {
 	mouse_down = true;
 }
 void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode, bool mouse_down) {
-	//if ((wParam & MK_LBUTTON) == MK_LBUTTON) {
-	if (mouse_down) {
+	
+	if (mouse_down == true) {
+		OutputDebugString(L"\n\nMOUSE MOVE\n\n");
+		//if ((wParam & MK_LBUTTON) == MK_LBUTTON) {
 		HDC hdc = GetDC(hWnd);
 		SetROP2(hdc, R2_NOTXORPEN);
 
@@ -184,6 +182,7 @@ void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mod
 		// Vẽ đường thẳng mới (do mode NOT_XOR)
 		drawObject(hWnd, hdc, pos, mode, hPen);
 
+		DeleteObject(hPen);
 		ReleaseDC(hWnd, hdc);
 	}
 }
@@ -192,15 +191,12 @@ bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode, HPEN hPen) {
 	case LINE:
 		MoveToEx(dc, pos.x1, pos.y1, NULL);
 		LineTo(dc, pos.x2, pos.y2);
-		DeleteObject(hPen);
 		return true;
 	case RECTANGLE:
 		Rectangle(dc, pos.x1, pos.y1, pos.x2, pos.y2);
-		DeleteObject(hPen);
 		return true;
 	case ELLIPSE:
 		Ellipse(dc, pos.x1, pos.y1, pos.x2, pos.y2);
-		DeleteObject(hPen);
 		return true;
 	} return false;
 }
