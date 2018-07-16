@@ -161,10 +161,8 @@ void OnLButtonDown(HWND hWnd, LPARAM lParam, Position& pos, bool& mouse_down) {
 	mouse_down = true;
 }
 void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode, bool mouse_down) {
-	
+	//if ((wParam & MK_LBUTTON) == MK_LBUTTON) {
 	if (mouse_down == true) {
-		OutputDebugString(L"\n\nMOUSE MOVE\n\n");
-		//if ((wParam & MK_LBUTTON) == MK_LBUTTON) {
 		HDC hdc = GetDC(hWnd);
 		SetROP2(hdc, R2_NOTXORPEN);
 
