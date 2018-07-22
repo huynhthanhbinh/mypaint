@@ -49,7 +49,7 @@ void createToolbar(HWND hWnd, HWND& hToolBarWnd, bool& Toolbar_Exist)
 		IMAGE_HEIGHT,
 		sizeof(TBBUTTON));
 
-	CheckMenuItem(GetMenu(hWnd), ID_TOOLBAR_VIEWHIDE, MF_CHECKED | MF_BYCOMMAND);
+	CheckMenuItem(GetSubMenu(GetMenu(hWnd), menuPos_Toolbar), ID_TOOLBAR_VIEWHIDE, MF_CHECKED | MF_BYCOMMAND);
 	Toolbar_Exist = true;
 }
 void ToolbarNotifyHandle(HINSTANCE hInst, LPARAM lParam)
@@ -89,7 +89,7 @@ void viewToolbar(HWND hWnd, HWND hToolBarWnd)
 		vFlag = MF_CHECKED;
 	}
 
-	CheckMenuItem(GetMenu(hWnd), ID_TOOLBAR_VIEWHIDE, vFlag | MF_BYCOMMAND);
+	CheckMenuItem(GetSubMenu(GetMenu(hWnd), menuPos_Toolbar), ID_TOOLBAR_VIEWHIDE, vFlag | MF_BYCOMMAND);
 }
 void addEditToolbar(HWND hToolBarWnd, bool Toolbar_Exist)
 {
@@ -98,10 +98,10 @@ void addEditToolbar(HWND hToolBarWnd, bool Toolbar_Exist)
 		TBBUTTON tbButtons[] =
 		{
 		{ 0, 0,	TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0 },
-		{ STD_CUT, NULL/*ID_EDIT_CUT*/, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 },
-		{ STD_COPY,	NULL/*ID_EDIT_COPY*/, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 },
-		{ STD_PASTE, NULL/*ID_EDIT_PASTE*/,	TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 },
-		{ STD_DELETE, NULL/*ID_EDIT_DELETE*/, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 }
+		{ STD_CUT, ID_EDIT_CUT, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 },
+		{ STD_COPY,	ID_EDIT_COPY, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 },
+		{ STD_PASTE, ID_EDIT_PASTE,	TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 },
+		{ STD_DELETE, ID_EDIT_DELETE, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 }
 		};
 
 		SendMessage(hToolBarWnd, TB_ADDBUTTONS,
@@ -204,7 +204,7 @@ void addDrawToolBar(HINSTANCE hInst, HWND hToolBarWnd, bool Toolbar_Exist) {
 	} 
 }
 void CheckMenuDraw(HWND hWnd, UINT MenuItemID) { // Huỳnh Thanh Bình
-	HMENU hMenu = GetSubMenu(GetMenu(hWnd), 1);
+	HMENU hMenu = GetSubMenu(GetMenu(hWnd), menuPos_Draw);
 
 	for (UINT i = ID_DRAW_LINE; i <= ID_DRAW_SELECTOBJECT; ++i) {
 		CheckMenuItem(hMenu, i, MF_UNCHECKED | MF_BYCOMMAND);
