@@ -33,7 +33,7 @@ void MyEllipse::draw(HWND hWnd, HDC hdc) {
 	DeleteObject(hPen);
 }
 void MyText::draw(HWND hWnd, HDC hdc) {
-
+	TextOut(hdc, pos.x1, pos.y1, str, wcslen(str));
 }
 void MyLine::save(fstream& f) {
 	//f << type << pos.x1 << pos.y1 << pos.x2 << pos.y2 << rgbColor << endl;
@@ -103,7 +103,7 @@ void OnPaint(HWND hWnd) {
 	ReleaseDC(hWnd, hdc);
 	EndPaint(hWnd, &ps);
 }
-void OnLButtonUp(Position pos, HWND hWnd, int mode, bool& mouse_down) {
+void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode, bool& mouse_down) {
 	ClipCursor(NULL); //release the mouse cursor
 	ReleaseCapture(); //release the mouse capture
 	mouse_down = false;
@@ -138,11 +138,33 @@ void OnLButtonUp(Position pos, HWND hWnd, int mode, bool& mouse_down) {
 			data->arrObject.push_back(e);
 		}
 		break;
+	case INSERTTEXT: {
+		Position tpos = pos;
+		if (pos.x2 < pos.x1) swap(tpos.x2, tpos.x1);
+		if (pos.y2 < pos.y1) swap(tpos.y2, tpos.y1);
+
+		hEdit = CreateWindowEx(
+			WS_EX_CLIENTEDGE, L"EDIT", L"", WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL,
+			tpos.x1, tpos.y1, tpos.x2 - tpos.x1, tpos.y2 - tpos.y1, hWnd, nullptr, hInst, nullptr);
+		
+		HFONT hFont = CreateFont(
+			data->logFont.lfHeight, data->logFont.lfWidth, 
+			data->logFont.lfEscapement, data->logFont.lfOrientation, 
+			data->logFont.lfWeight, data->logFont.lfItalic, data->logFont.lfUnderline,
+			data->logFont.lfStrikeOut, data->logFont.lfCharSet, 
+			data->logFont.lfOutPrecision, data->logFont.lfClipPrecision, data->logFont.lfQuality,
+			data->logFont.lfPitchAndFamily, data->logFont.lfFaceName);
+
+
+		SendMessage(hEdit, WM_SETFONT, WPARAM(hFont), TRUE);
+		SetFocus(hEdit);
+		ShowWindow(hEdit, SW_NORMAL);
+		} break;
 	}
 	wsprintf(s, L"\n\n\nNumbers of object: %d\n\n\n", data->arrObject.size()); OutputDebugString(s);
 	return;
 }
-void OnLButtonDown(HWND hWnd, LPARAM lParam, Position& pos, bool& mouse_down) {
+void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mode, bool& mouse_down) {
 	SetCapture(hWnd); // Capture mouse input
 	RECT rect;
 	POINT upperleft, lowerright;
@@ -155,9 +177,14 @@ void OnLButtonDown(HWND hWnd, LPARAM lParam, Position& pos, bool& mouse_down) {
 	ClientToScreen(hWnd, &lowerright);
 	SetRect(&rect, upperleft.x, upperleft.y, lowerright.x, lowerright.y);
 	ClipCursor(&rect);
-	
+
+	if (mode == INSERTTEXT) {
+		onLButtonDownText(hWnd, hEdit, pos);
+		InvalidateRect(hWnd, &rect, TRUE);
+	}
 	pos.x1 = pos.x2 = LOWORD(lParam);
 	pos.y1 = pos.y2 = HIWORD(lParam);
+
 	mouse_down = true;
 }
 void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode, bool mouse_down) {
@@ -167,24 +194,26 @@ void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mod
 		SetROP2(hdc, R2_NOTXORPEN);
 
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
-		HPEN hPen = CreatePen(PS_SOLID, 2, data->rgbColor);
+		HPEN hPen;
+		if (mode == INSERTTEXT ) hPen = CreatePen(PS_SOLID, 1, data->rgbColor);
+		else hPen = CreatePen(PS_SOLID, 2, data->rgbColor);
 		SelectObject(hdc, hPen);
 
 		// Vẽ đường thẳng cũ 
-		drawObject(hWnd, hdc, pos, mode, hPen);
+		drawObject(hWnd, hdc, pos, mode);
 
 		// Cập nhật điểm mới !!!
 		pos.x2 = LOWORD(lParam);
 		pos.y2 = HIWORD(lParam);
 
 		// Vẽ đường thẳng mới (do mode NOT_XOR)
-		drawObject(hWnd, hdc, pos, mode, hPen);
+		drawObject(hWnd, hdc, pos, mode);
 
 		DeleteObject(hPen);
 		ReleaseDC(hWnd, hdc);
 	}
 }
-bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode, HPEN hPen) {
+bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode) {
 	switch (mode) {
 	case LINE:
 		MoveToEx(dc, pos.x1, pos.y1, NULL);
@@ -195,6 +224,9 @@ bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode, HPEN hPen) {
 		return true;
 	case ELLIPSE:
 		Ellipse(dc, pos.x1, pos.y1, pos.x2, pos.y2);
+		return true;
+	case INSERTTEXT:
+		Rectangle(dc, pos.x1, pos.y1, pos.x2, pos.y2);
 		return true;
 	} return false;
 }
@@ -208,4 +240,34 @@ bool clearObjArray(HWND hWndClient) {
 	data->arrObject.clear();
 	return true;
 }
+void onLButtonDownText(HWND hWnd, HWND& hEdit, Position& pos) {
+	if (hEdit != NULL) {
+		CHILD_WND_DATA* data = (CHILD_WND_DATA*)GetWindowLongPtr(hWnd, 0);
+		int size = GetWindowTextLength(hEdit) + 1; // + 1: "\0" kí tự kết thúc chuỗi 
+		WCHAR* str = new WCHAR[size];
 
+		if (GetWindowText(hEdit, str, size)) {
+			MyText* t = new MyText;
+			wcscpy(t->str, str);
+			t->type = INSERTTEXT;
+			t->rgbColor = data->rgbColor;
+			t->logFont = data->logFont;
+
+			Position tpos = pos;
+			if (pos.x2 < pos.x1) swap(tpos.x2, tpos.x1);
+			if (pos.y2 < pos.y1) swap(tpos.y2, tpos.y1);
+			
+			t->pos = tpos;
+
+			//RECT r;
+			//GetWindowRect(hEdit, &r);
+			//MapWindowPoints(hEdit, hWnd, (LPPOINT)&r, 2);
+
+			data->arrObject.push_back(t);
+
+			DestroyWindow(hEdit);
+			hEdit = NULL;
+		} delete[] str;
+		DestroyWindow(hEdit);
+	}
+}
