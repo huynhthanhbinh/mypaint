@@ -201,6 +201,19 @@ void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mod
 	if (mode == INSERTTEXT) {
 		onLButtonDownText(hWnd, hEdit, pos);
 	}
+	if (mode == SELECT) {
+		CHILD_WND_DATA* data = (CHILD_WND_DATA*)GetWindowLongPtr(hWnd, 0);
+		for (int i = data->arrObject.size() - 1; i >= 0; i--) {
+			if (onSelect(data->arrObject[i]->pos, lParam, data->arrObject[i]->type)) {
+				WCHAR mess[MAX_LOADSTRING];
+				HDC hdc = GetDC(hWnd);
+				wsprintf(mess, L"object: %d", i);
+				MessageBox(hWnd, mess, L"NOTICE", MB_OK);
+				ReleaseDC(hWnd, hdc);
+				break;
+			}
+		}
+	}
 
 	pos.x1 = pos.x2 = LOWORD(lParam);
 	pos.y1 = pos.y2 = HIWORD(lParam);
@@ -294,4 +307,36 @@ void onLButtonDownText(HWND hWnd, HWND& hEdit, Position& pos) {
 		} delete[] str;
 		DestroyWindow(hEdit);
 	}
+}
+
+double getDistance(POINT pt1, POINT pt2) {
+	return (sqrt(pow((pt1.x - pt2.x), 2) + pow((pt1.y - pt2.y), 2)));
+}
+bool onSelect(Position pos, LPARAM lParam, int type)
+{
+	POINT pt1 = { pos.x1, pos.y1 };
+	POINT pt2 = { pos.x2, pos.y2 };
+	POINT pt3;
+	pt3.x = LOWORD(lParam);
+	pt3.y = HIWORD(lParam);
+	switch (type) {
+	case LINE: {
+		double d = getDistance(pt3, pt1) + getDistance(pt3, pt2);
+		if (d >= getDistance(pt1, pt2) - 0.2 // xấp xỉ, nằm ngoài đoạn
+			&& d <= getDistance(pt1, pt2) + 0.2) // xấp xỉ, nằm trong đoạn
+			return true;
+	} break;
+	case ELLIPSE:
+	case RECTANGLE: {
+		if (pt1.x > pt2.x) swap(pt1.x, pt2.x);
+		if (pt1.y > pt2.y) swap(pt1.y, pt2.y);
+
+		if ((pt1.x <= pt3.x && pt3.x <= pt2.x)
+			&& (pt1.y <= pt3.y && pt3.y <= pt2.y))
+			return true;
+	} break;
+	case INSERTTEXT:
+		break;
+
+	} return false;
 }
