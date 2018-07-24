@@ -198,22 +198,8 @@ void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mod
 	SetRect(&rect, upperleft.x, upperleft.y, lowerright.x, lowerright.y);
 	ClipCursor(&rect);
 
-	if (mode == INSERTTEXT) {
-		onLButtonDownText(hWnd, hEdit, pos);
-	}
-	if (mode == SELECT) {
-		CHILD_WND_DATA* data = (CHILD_WND_DATA*)GetWindowLongPtr(hWnd, 0);
-		for (int i = data->arrObject.size() - 1; i >= 0; i--) {
-			if (onSelect(data->arrObject[i]->pos, lParam, data->arrObject[i]->type)) {
-				WCHAR mess[MAX_LOADSTRING];
-				HDC hdc = GetDC(hWnd);
-				wsprintf(mess, L"object: %d", i);
-				MessageBox(hWnd, mess, L"NOTICE", MB_OK);
-				ReleaseDC(hWnd, hdc);
-				break;
-			}
-		}
-	}
+	if (mode == INSERTTEXT) onLButtonDownText(hWnd, hEdit, pos);
+	if (mode == SELECT) onSelect(hWnd, lParam);
 
 	pos.x1 = pos.x2 = LOWORD(lParam);
 	pos.y1 = pos.y2 = HIWORD(lParam);
@@ -312,7 +298,7 @@ void onLButtonDownText(HWND hWnd, HWND& hEdit, Position& pos) {
 double getDistance(POINT pt1, POINT pt2) {
 	return (sqrt(pow((pt1.x - pt2.x), 2) + pow((pt1.y - pt2.y), 2)));
 }
-bool onSelect(Position pos, LPARAM lParam, int type)
+bool isObject(Position pos, LPARAM lParam, int type)
 {
 	POINT pt1 = { pos.x1, pos.y1 };
 	POINT pt2 = { pos.x2, pos.y2 };
@@ -339,4 +325,52 @@ bool onSelect(Position pos, LPARAM lParam, int type)
 		break;
 
 	} return false;
+}
+
+
+void onSelect(HWND hWnd, LPARAM lParam)  {
+	CHILD_WND_DATA* data = (CHILD_WND_DATA*)GetWindowLongPtr(hWnd, 0);
+	static bool prev = false;
+
+	if (prev = true) {
+		RECT rect;
+		GetClientRect(hWnd, &rect);
+		InvalidateRect(hWnd, &rect, TRUE);
+		UpdateWindow(hWnd);
+		prev = false;
+	}
+
+	for (int i = data->arrObject.size() - 1; i >= 0; i--) {
+		if (isObject(data->arrObject[i]->pos, lParam, data->arrObject[i]->type)) {
+			
+			WCHAR mess[MAX_LOADSTRING];
+			wsprintf(mess, L"\n\nObject: %d\n\n", i);
+			//MessageBox(NULL, mess, L"NOTICE", MB_OK);
+			OutputDebugString(mess);
+
+			HDC hdc = GetDC(hWnd);
+			SetBkMode(hdc, TRANSPARENT);
+
+
+			Position pos = data->arrObject[i]->pos;
+			if (pos.x1 > pos.x2) swap(pos.x1, pos.x2);
+			if (pos.y1 > pos.y2) swap(pos.y1, pos.y2);
+
+			HPEN hPen = CreatePen(PS_DASHDOT, 1, RGB(255, 0, 0));
+
+			SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
+
+			SelectObject(hdc, hPen);
+			Rectangle(hdc,
+				pos.x1 - 3,
+				pos.y1 - 3,
+				pos.x2 + 3,
+				pos.y2 + 3);
+			
+			DeleteObject(hPen);
+			ReleaseDC(hWnd, hdc);
+			prev = true;
+			break;
+		}
+	}
 }

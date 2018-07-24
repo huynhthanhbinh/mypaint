@@ -77,6 +77,7 @@ void saveFile(vector <Object*>  arrObject, LPTSTR szFile);
 void openFile(vector <Object*>& arrObject, LPTSTR szFile);
 
 double getDistance(POINT pt1, POINT pt2);
-bool onSelect(Position pos, LPARAM lParam, int type);
+bool isObject(Position pos, LPARAM lParam, int type);
+void onSelect(HWND hWnd, LPARAM lParam);
 
 #endif // !_MY_OBJECT_H_
