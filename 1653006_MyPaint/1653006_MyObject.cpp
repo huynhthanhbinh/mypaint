@@ -36,9 +36,8 @@ void MyText::draw(HWND hWnd, HDC hdc) {
 	HFONT hFont = CreateFontIndirect(&logFont);
 	SelectObject(hdc, hFont);
 	SetTextColor(hdc, rgbColor);
-
-	TextOut(hdc, pos.x1, pos.y1, str, wcslen(str));
 	SetBkMode(hdc, TRANSPARENT);
+	TextOut(hdc, pos.x1, pos.y1, str, wcslen(str));
 	SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
 	Rectangle(hdc, pos.x1, pos.y1, pos.x2, pos.y2);
 	DeleteObject(hFont);
