@@ -70,7 +70,14 @@ void MyEllipse::save(fstream& f) {
 	f.write((char*)&rgbColor, sizeof(rgbColor));
 }
 void MyText::save(fstream& f) {
-
+	f.write((char*)&type, sizeof(int));
+	f.write((char*)&pos.x1, sizeof(int));
+	f.write((char*)&pos.y1, sizeof(int));
+	f.write((char*)&pos.x2, sizeof(int));
+	f.write((char*)&pos.y2, sizeof(int));
+	f.write((char*)&rgbColor, sizeof(rgbColor));
+	f.write((char*)&logFont, sizeof(logFont));
+	f.write((char*)&str, sizeof(str));
 }
 void MyLine::open(fstream& f) {
 	f.read((char*)&pos.x1, sizeof(int));
@@ -94,7 +101,13 @@ void MyEllipse::open(fstream& f) {
 	f.read((char*)&rgbColor, sizeof(rgbColor));
 }
 void MyText::open(fstream& f) {
-
+	f.read((char*)&pos.x1, sizeof(int));
+	f.read((char*)&pos.y1, sizeof(int));
+	f.read((char*)&pos.x2, sizeof(int));
+	f.read((char*)&pos.y2, sizeof(int));
+	f.read((char*)&rgbColor, sizeof(rgbColor));
+	f.read((char*)&logFont, sizeof(logFont));
+	f.read((char*)&str, sizeof(str));
 }
 
 
@@ -262,13 +275,10 @@ void onLButtonDownText(HWND hWnd, HWND& hEdit, Position& pos) {
 			t->type = INSERTTEXT;
 			t->rgbColor = data->rgbColor;
 			t->logFont = data->logFont;
-
-			Position tpos = pos;
-			if (pos.x2 < pos.x1) swap(tpos.x2, tpos.x1);
-			if (pos.y2 < pos.y1) swap(tpos.y2, tpos.y1);
+			if (pos.x2 < pos.x1) swap(pos.x2, pos.x1);
+			if (pos.y2 < pos.y1) swap(pos.y2, pos.y1);
 			
-			
-			t->pos = tpos;
+			t->pos = pos;
 			data->arrObject.push_back(t);
 
 			RECT r; GetWindowRect(hEdit, &r);
