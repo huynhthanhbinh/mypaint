@@ -33,7 +33,15 @@ void MyEllipse::draw(HWND hWnd, HDC hdc) {
 	DeleteObject(hPen);
 }
 void MyText::draw(HWND hWnd, HDC hdc) {
+	HFONT hFont = CreateFontIndirect(&logFont);
+	SelectObject(hdc, hFont);
+	SetTextColor(hdc, rgbColor);
+
 	TextOut(hdc, pos.x1, pos.y1, str, wcslen(str));
+	SetBkMode(hdc, TRANSPARENT);
+	SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
+	Rectangle(hdc, pos.x1, pos.y1, pos.x2, pos.y2);
+	DeleteObject(hFont);
 }
 void MyLine::save(fstream& f) {
 	//f << type << pos.x1 << pos.y1 << pos.x2 << pos.y2 << rgbColor << endl;
@@ -180,12 +188,14 @@ void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mod
 
 	if (mode == INSERTTEXT) {
 		onLButtonDownText(hWnd, hEdit, pos);
-		InvalidateRect(hWnd, &rect, TRUE);
 	}
+
 	pos.x1 = pos.x2 = LOWORD(lParam);
 	pos.y1 = pos.y2 = HIWORD(lParam);
 
 	mouse_down = true;
+
+	//MessageBox(NULL, L"LBUTTON DOWN", L"NOTICE", MB_OK);
 }
 void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode, bool mouse_down) {
 	//if ((wParam & MK_LBUTTON) == MK_LBUTTON) {
@@ -241,8 +251,9 @@ bool clearObjArray(HWND hWndClient) {
 	return true;
 }
 void onLButtonDownText(HWND hWnd, HWND& hEdit, Position& pos) {
+	CHILD_WND_DATA* data = (CHILD_WND_DATA*)GetWindowLongPtr(hWnd, 0);
+
 	if (hEdit != NULL) {
-		CHILD_WND_DATA* data = (CHILD_WND_DATA*)GetWindowLongPtr(hWnd, 0);
 		int size = GetWindowTextLength(hEdit) + 1; // + 1: "\0" kí tự kết thúc chuỗi 
 		WCHAR* str = new WCHAR[size];
 
@@ -257,14 +268,18 @@ void onLButtonDownText(HWND hWnd, HWND& hEdit, Position& pos) {
 			if (pos.x2 < pos.x1) swap(tpos.x2, tpos.x1);
 			if (pos.y2 < pos.y1) swap(tpos.y2, tpos.y1);
 			
+			
 			t->pos = tpos;
-
-			//RECT r;
-			//GetWindowRect(hEdit, &r);
-			//MapWindowPoints(hEdit, hWnd, (LPPOINT)&r, 2);
-
 			data->arrObject.push_back(t);
 
+			RECT r; GetWindowRect(hEdit, &r);
+			MapWindowPoints(hEdit, hWnd, (LPPOINT)&r, 2); // map point wm_paint
+			//InvalidateRect(hEdit, &r, TRUE);
+		
+			HDC hdc = GetDC(hWnd);
+			t->draw(hWnd, hdc);
+			
+			ReleaseDC(hWnd, hdc);
 			DestroyWindow(hEdit);
 			hEdit = NULL;
 		} delete[] str;
