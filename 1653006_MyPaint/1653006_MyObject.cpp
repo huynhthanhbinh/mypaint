@@ -38,8 +38,6 @@ void MyText::draw(HWND hWnd, HDC hdc) {
 	SetTextColor(hdc, rgbColor);
 	SetBkMode(hdc, TRANSPARENT);
 	TextOut(hdc, pos.x1, pos.y1, str, wcslen(str));
-	SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
-	Rectangle(hdc, pos.x1, pos.y1, pos.x2, pos.y2);
 	DeleteObject(hFont);
 }
 void MyLine::save(fstream& f) {
@@ -217,7 +215,7 @@ void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mod
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
 		HPEN hPen;
 		if (mode == INSERTTEXT ) hPen = CreatePen(PS_SOLID, 1, data->rgbColor);
-		else hPen = CreatePen(PS_SOLID, 2, data->rgbColor);
+		else hPen = CreatePen(PS_DASHDOT, 1, data->rgbColor);
 		SelectObject(hdc, hPen);
 
 		// Vẽ đường thẳng cũ 
@@ -269,24 +267,30 @@ void onLButtonDownText(HWND hWnd, HWND& hEdit, Position& pos) {
 		WCHAR* str = new WCHAR[size];
 
 		if (GetWindowText(hEdit, str, size)) {
+			HDC hdc = GetDC(hWnd);
+			SIZE size;
+			HFONT hFont = CreateFontIndirect(&data->logFont);
+			SelectObject(hdc, hFont);
+			GetTextExtentPoint32(hdc, str, wcslen(str), &size);
+
+			if (pos.x2 < pos.x1) swap(pos.x2, pos.x1);
+			if (pos.y2 < pos.y1) swap(pos.y2, pos.y1);
+			pos.x2 = pos.x1 + size.cx;
+			pos.y2 = pos.y1 + size.cy;
+		
 			MyText* t = new MyText;
 			wcscpy(t->str, str);
 			t->type = INSERTTEXT;
 			t->rgbColor = data->rgbColor;
 			t->logFont = data->logFont;
-			if (pos.x2 < pos.x1) swap(pos.x2, pos.x1);
-			if (pos.y2 < pos.y1) swap(pos.y2, pos.y1);
-			
 			t->pos = pos;
 			data->arrObject.push_back(t);
 
 			RECT r; GetWindowRect(hEdit, &r);
-			MapWindowPoints(hEdit, hWnd, (LPPOINT)&r, 2); // map point wm_paint
-			//InvalidateRect(hEdit, &r, TRUE);
-		
-			HDC hdc = GetDC(hWnd);
+			MapWindowPoints(hEdit, hWnd, (LPPOINT)&r, 2);
 			t->draw(hWnd, hdc);
-			
+
+			DeleteObject(hFont);
 			ReleaseDC(hWnd, hdc);
 			DestroyWindow(hEdit);
 			hEdit = NULL;
@@ -312,8 +316,9 @@ bool isObject(Position pos, LPARAM lParam, int type)
 			&& d <= getDistance(pt1, pt2) + 0.2) // xấp xỉ, nằm trong đoạn
 			return true;
 	} break;
-	case ELLIPSE:
-	case RECTANGLE: {
+	case ELLIPSE: 
+	case RECTANGLE: 
+	case INSERTTEXT: {
 		if (pt1.x > pt2.x) swap(pt1.x, pt2.x);
 		if (pt1.y > pt2.y) swap(pt1.y, pt2.y);
 
@@ -321,9 +326,6 @@ bool isObject(Position pos, LPARAM lParam, int type)
 			&& (pt1.y <= pt3.y && pt3.y <= pt2.y))
 			return true;
 	} break;
-	case INSERTTEXT:
-		break;
-
 	} return false;
 }
 
@@ -380,3 +382,62 @@ void onSelect(HWND hWnd, LPARAM lParam)  {
 		}
 	}
 }
+void CopyObject(HWND hWnd, Object* o) {
+	WCHAR szMyObjectFormat[16] = L"MY_PAINT_OBJECT";
+	int MyObjectFormatID = RegisterClipboardFormat(szMyObjectFormat);
+	HGLOBAL hgbMem = GlobalAlloc(GHND, sizeof(MYPAINT_OBJ));
+	MYPAINT_OBJ * obj = (MYPAINT_OBJ*)GlobalLock(hgbMem);
+
+	// Save To Clipboard
+	//obj->type = o->type;
+	//obj->pos = o->pos;
+	//obj->rgbColor = o.
+
+	GlobalUnlock(hgbMem);
+	if (OpenClipboard(hWnd)) {
+		EmptyClipboard();
+		SetClipboardData(MyObjectFormatID, hgbMem);
+		CloseClipboard();
+	}
+}
+//void copyToClipboard(HWND hWnd) {
+//	if (mode == SELECT_AREA) { // dữ liệu dạng chuẩn
+//		HDC hdc = GetDC(hWnd);
+//		HDC memSourceDC = CreateCompatibleDC(hdc);
+//		SelectObject(memSourceDC, hBitmap);
+//		HDC memDestDC = CreateCompatibleDC(hdc);
+//		HBITMAP hCopyBitmap = CreateCompatibleBitmap(hdc, _x2 - _x1, _y2 - _y1);
+//		SelectObject(memDestDC, hCopyBitmap);
+//
+//		BitBlt(memDestDC, 0, 0, _x2 - _x1, _y2 - _y1,
+//			memSourceDC, _x1, _y1, SRCCOPY);
+//
+//		if (OpenClipboard(hWnd)) {
+//			EmptyClipboard();
+//			SetClipboardData(CF_BITMAP, hCopyBitmap);
+//			CloseClipboard();
+//		}
+//
+//		DeleteDC(memSourceDC);
+//		DeleteDC(memDestDC);
+//		DeleteObject(hCopyBitmap);
+//		ReleaseDC(hWnd, hdc);
+//	}
+//	else { // dữ liêu dạng không chuản 
+//		// copy the ellipse area object to clipboard 
+//		int nEllipseFormatID = RegisterClipboardFormat(szEllipseFormat);
+//		HGLOBAL hgbMem = GlobalAlloc(GHND, sizeof(ELLIPSE_OBJ));
+//		ELLIPSE_OBJ * p = (ELLIPSE_OBJ*)GlobalLock(hgbMem);
+//		p->x1 = _x1;
+//		p->y1 = _y1;
+//		p->x2 = _x2;
+//		p->y2 = _y2;
+//		GlobalUnlock(hgbMem);
+//		if (OpenClipboard(hWnd)) {
+//			EmptyClipboard();
+//			SetClipboardData(nEllipseFormatID, hgbMem);
+//			CloseClipboard();
+//		}
+//	}
+//}
+

@@ -13,6 +13,14 @@ struct Position {
 	int x1, y1, x2, y2;
 };
 
+struct MYPAINT_OBJ {
+	int type;
+	Position pos;
+	COLORREF rgbColor;
+	LOGFONT logFont;
+	WCHAR str[MAX_LOADSTRING];
+};
+
 class Object {
 public:
 	int type;
