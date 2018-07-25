@@ -358,6 +358,12 @@ void onSelect(HWND hWnd, LPARAM lParam)  {
 
 			HPEN hPen = CreatePen(PS_DASHDOT, 1, RGB(255, 0, 0));
 
+			SetDCBrushColor(hdc, RGB(255, 0, 0));
+			Rectangle(hdc, pos.x1 - 4, pos.y1 - 4, pos.x1 + 4, pos.y1 + 4);
+			Rectangle(hdc, pos.x1 - 4, pos.y2 - 4, pos.x1 + 4, pos.y2 + 4);
+			Rectangle(hdc, pos.x2 - 4, pos.y1 - 4, pos.x2 + 4, pos.y1 + 4);
+			Rectangle(hdc, pos.x2 - 4, pos.y2 - 4, pos.x2 + 4, pos.y2 + 4);
+
 			SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
 
 			SelectObject(hdc, hPen);
