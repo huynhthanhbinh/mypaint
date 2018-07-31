@@ -1,0 +1,9 @@
+﻿  stdafx.cpp
+  1653006_MyObject.cpp
+e:\1653006_mypaint\1653006_mypaint\1653006_myobject.cpp(40): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+e:\1653006_mypaint\1653006_mypaint\1653006_myobject.cpp(274): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+e:\1653006_mypaint\1653006_mypaint\1653006_myobject.cpp(345): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  1653006_MyPaint.cpp
+  1653006_MyToolbar.cpp
+  Generating Code...
+LINK : fatal error LNK1104: cannot open file 'x86\ComCtl32.Lib'

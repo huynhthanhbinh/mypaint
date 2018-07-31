@@ -72,7 +72,7 @@ public:
 
 void OnPaint(HWND hWnd);
 void onLButtonDownText(HWND hWnd, HWND& hEdit, Position& pos);
-void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mode, bool& mouse_down);
+void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mode, bool& mouse_down, int& i);
 void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode, bool mouse_down);
 void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode, bool& mouse_down);
 bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode);
@@ -86,6 +86,8 @@ void openFile(vector <Object*>& arrObject, LPTSTR szFile);
 
 double getDistance(POINT pt1, POINT pt2);
 bool isObject(Position pos, LPARAM lParam, int type);
-void onSelect(HWND hWnd, LPARAM lParam);
+void onSelect(HWND hWnd, LPARAM lParam, int& i);
+
+void deleteObject(vector <Object*> &arrObj, int i);
 
 #endif // !_MY_OBJECT_H_

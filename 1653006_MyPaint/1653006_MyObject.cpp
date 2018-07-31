@@ -182,7 +182,7 @@ void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode
 	wsprintf(s, L"\n\n\nNumbers of object: %d\n\n\n", data->arrObject.size()); OutputDebugString(s);
 	return;
 }
-void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mode, bool& mouse_down) {
+void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mode, bool& mouse_down, int& i) {
 	SetCapture(hWnd); // Capture mouse input
 	RECT rect;
 	POINT upperleft, lowerright;
@@ -197,7 +197,7 @@ void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mod
 	ClipCursor(&rect);
 
 	if (mode == INSERTTEXT) onLButtonDownText(hWnd, hEdit, pos);
-	if (mode == SELECT) onSelect(hWnd, lParam);
+	if (mode == SELECT) onSelect(hWnd, lParam, i);
 
 	pos.x1 = pos.x2 = LOWORD(lParam);
 	pos.y1 = pos.y2 = HIWORD(lParam);
@@ -215,7 +215,7 @@ void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mod
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
 		HPEN hPen;
 		if (mode == INSERTTEXT ) hPen = CreatePen(PS_SOLID, 1, data->rgbColor);
-		else hPen = CreatePen(PS_DASHDOT, 1, data->rgbColor);
+		else hPen = CreatePen(PS_SOLID, 2, data->rgbColor);
 		SelectObject(hdc, hPen);
 
 		// Vẽ đường thẳng cũ 
@@ -330,11 +330,11 @@ bool isObject(Position pos, LPARAM lParam, int type)
 }
 
 
-void onSelect(HWND hWnd, LPARAM lParam)  {
+void onSelect(HWND hWnd, LPARAM lParam, int& i)  {
 	CHILD_WND_DATA* data = (CHILD_WND_DATA*)GetWindowLongPtr(hWnd, 0);
 	static bool prev = false;
 
-	if (prev = true) {
+	if (prev == true) {
 		RECT rect;
 		GetClientRect(hWnd, &rect);
 		InvalidateRect(hWnd, &rect, TRUE);
@@ -342,7 +342,7 @@ void onSelect(HWND hWnd, LPARAM lParam)  {
 		prev = false;
 	}
 
-	for (int i = data->arrObject.size() - 1; i >= 0; i--) {
+	for (i = data->arrObject.size() - 1; i >= 0; i--) {
 		if (isObject(data->arrObject[i]->pos, lParam, data->arrObject[i]->type)) {
 			
 			WCHAR mess[MAX_LOADSTRING];
@@ -360,11 +360,10 @@ void onSelect(HWND hWnd, LPARAM lParam)  {
 
 			HPEN hPen = CreatePen(PS_DASHDOT, 1, RGB(255, 0, 0));
 
-			SetDCBrushColor(hdc, RGB(255, 0, 0));
-			Rectangle(hdc, pos.x1 - 4, pos.y1 - 4, pos.x1 + 4, pos.y1 + 4);
-			Rectangle(hdc, pos.x1 - 4, pos.y2 - 4, pos.x1 + 4, pos.y2 + 4);
-			Rectangle(hdc, pos.x2 - 4, pos.y1 - 4, pos.x2 + 4, pos.y1 + 4);
-			Rectangle(hdc, pos.x2 - 4, pos.y2 - 4, pos.x2 + 4, pos.y2 + 4);
+			Rectangle(hdc, pos.x1 - 6, pos.y1 - 6, pos.x1 + 2, pos.y1 + 2);
+			Rectangle(hdc, pos.x1 - 6, pos.y2 - 2, pos.x1 + 2, pos.y2 + 6);
+			Rectangle(hdc, pos.x2 - 2, pos.y1 - 6, pos.x2 + 6, pos.y1 + 2);
+			Rectangle(hdc, pos.x2 - 2, pos.y2 - 2, pos.x2 + 6, pos.y2 + 6);
 
 			SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
 
@@ -391,7 +390,8 @@ void CopyObject(HWND hWnd, Object* o) {
 	// Save To Clipboard
 	//obj->type = o->type;
 	//obj->pos = o->pos;
-	//obj->rgbColor = o.
+	//obj->rgbColor = o->rgbColor;
+	//obj->str = o.
 
 	GlobalUnlock(hgbMem);
 	if (OpenClipboard(hWnd)) {
@@ -400,6 +400,19 @@ void CopyObject(HWND hWnd, Object* o) {
 		CloseClipboard();
 	}
 }
+
+void deleteObject(vector <Object*> &arrObj, int i) {
+	WCHAR x[128];
+	wsprintf(x, L"i = %d", i);
+	MessageBox(NULL, x, L"i notice", MB_OK);
+
+
+	//Object* xObj = arrObj[i];
+	//delete xObj;
+	vector <Object*> ::iterator xpos = arrObj.begin();
+	arrObj.erase(arrObj.begin());
+}
+
 //void copyToClipboard(HWND hWnd) {
 //	if (mode == SELECT_AREA) { // dữ liệu dạng chuẩn
 //		HDC hdc = GetDC(hWnd);
