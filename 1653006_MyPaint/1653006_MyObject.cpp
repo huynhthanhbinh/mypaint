@@ -442,18 +442,9 @@ void onSelect(HWND hWnd, LPARAM lParam, int& i)  {
 }
 void deleteObject(HWND hwndMDIClient, int mode, int& i) {
 	if (mode == SELECT && i != -1) {
+		//MessageBox(NULL, L"EDIT DELETE", L"NOTICE", MB_OK);
 		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
-
-		WCHAR x[128]; OutputDebugString(L"\n");
-
-		for (unsigned int j = 0; j < data->arrObject.size(); j++) {
-			Object* obj = data->arrObject[j];
-			wsprintf(x, L"%d. Type = %d, x1 = %d, y1 = %d, x2 = %d, y2 = %d, R = %d, G = %d, B = %d\n",
-				j, obj->type, obj->pos.x1, obj->pos.y1, obj->pos.x2, obj->pos.y2,
-				GetRValue(obj->rgbColor), GetGValue(obj->rgbColor), GetBValue(obj->rgbColor));
-			OutputDebugString(x);
-		}
 
 		for (unsigned int j = i; j < data->arrObject.size() - 1; j++) {
 			swap(data->arrObject[j], data->arrObject[j + 1]);
@@ -466,11 +457,13 @@ void deleteObject(HWND hwndMDIClient, int mode, int& i) {
 }
 void copyObject(HWND hwndMDIClient, int mode, int i) {
 	if (mode == SELECT && i != -1) {
+		//MessageBox(NULL, L"EDIT COPY", L"NOTICE", MB_OK);
 		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
 		if (data != NULL) data->arrObject[i]->copy(current);
 	}
 }
+
 
 //void copyToClipboard(HWND hWnd) {
 //	if (mode == SELECT_AREA) { // dữ liệu dạng chuẩn
