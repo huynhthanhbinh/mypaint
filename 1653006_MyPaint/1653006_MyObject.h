@@ -21,6 +21,7 @@ public:
 	virtual void draw(HWND hWnd, HDC hdc) = 0;
 	virtual void save(fstream& f) = 0;
 	virtual void open(fstream& f) = 0;
+	virtual void copy(HWND hWnd) = 0;
 };
 
 struct CHILD_WND_DATA {
@@ -37,6 +38,7 @@ public:
 	void draw(HWND hWnd, HDC hdc);
 	void save(fstream& f);
 	void open(fstream& f);
+	void copy(HWND hWnd);
 };
 
 class MyRectangle : public Object {
@@ -44,6 +46,7 @@ public:
 	void draw(HWND hWnd, HDC hdc);
 	void save(fstream& f);
 	void open(fstream& f);
+	void copy(HWND hWnd);
 };
 
 class MyEllipse : public Object {
@@ -51,6 +54,7 @@ public:
 	void draw(HWND hWnd, HDC hdc);
 	void save(fstream& f);
 	void open(fstream& f);
+	void copy(HWND hWnd);
 };
 
 class MyText : public Object {
@@ -60,6 +64,7 @@ public:
 	void draw(HWND hWnd, HDC hdc);
 	void save(fstream& f);
 	void open(fstream& f);
+	void copy(HWND hWnd);
 };
 
 void OnPaint(HWND hWnd);

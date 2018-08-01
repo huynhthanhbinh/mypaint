@@ -107,6 +107,66 @@ void MyText::open(fstream& f) {
 	f.read((char*)&logFont, sizeof(logFont));
 	f.read((char*)&str, sizeof(str));
 }
+void MyLine::copy(HWND hWnd) {
+	int nLineFormatID = RegisterClipboardFormat(L"myLine");
+	HGLOBAL hgbMem = GlobalAlloc(GHND, sizeof(MyLine));
+	MyLine * l = (MyLine*)GlobalLock(hgbMem);
+	
+	ZeroMemory(&l, sizeof(MyLine));
+	CopyMemory(&l, this, sizeof(MyLine));
+
+	GlobalUnlock(hgbMem);
+	if (OpenClipboard(hWnd)) {
+		EmptyClipboard();
+		SetClipboardData(nLineFormatID, hgbMem);
+		CloseClipboard();
+	}
+}
+void MyRectangle::copy(HWND hWnd) {
+	int nRectangleFormatID = RegisterClipboardFormat(L"myRectangle");
+	HGLOBAL hgbMem = GlobalAlloc(GHND, sizeof(MyRectangle));
+	MyRectangle * r = (MyRectangle*)GlobalLock(hgbMem);
+
+	ZeroMemory(&r, sizeof(MyRectangle));
+	CopyMemory(&r, this, sizeof(MyRectangle));
+
+	GlobalUnlock(hgbMem);
+	if (OpenClipboard(hWnd)) {
+		EmptyClipboard();
+		SetClipboardData(nRectangleFormatID, hgbMem);
+		CloseClipboard();
+	}
+}
+void MyEllipse::copy(HWND hWnd) {
+	int nEllipseFormatID = RegisterClipboardFormat(L"myEllipse");
+	HGLOBAL hgbMem = GlobalAlloc(GHND, sizeof(MyEllipse));
+	MyEllipse * l = (MyEllipse*)GlobalLock(hgbMem);
+
+	ZeroMemory(&l, sizeof(MyEllipse));
+	CopyMemory(&l, this, sizeof(MyEllipse));
+
+	GlobalUnlock(hgbMem);
+	if (OpenClipboard(hWnd)) {
+		EmptyClipboard();
+		SetClipboardData(nEllipseFormatID, hgbMem);
+		CloseClipboard();
+	}
+}
+void MyText::copy(HWND hWnd) {
+	int nTextFormatID = RegisterClipboardFormat(L"myText");
+	HGLOBAL hgbMem = GlobalAlloc(GHND, sizeof(MyText));
+	MyText * l = (MyText*)GlobalLock(hgbMem);
+
+	ZeroMemory(&l, sizeof(MyText));
+	CopyMemory(&l, this, sizeof(MyText));
+
+	GlobalUnlock(hgbMem);
+	if (OpenClipboard(hWnd)) {
+		EmptyClipboard();
+		SetClipboardData(nTextFormatID, hgbMem);
+		CloseClipboard();
+	}
+}
 
 
 void OnPaint(HWND hWnd) {
@@ -299,6 +359,7 @@ void onLButtonDownText(HWND hWnd, HWND& hEdit, Position& pos) {
 	}
 }
 
+
 double getDistance(POINT pt1, POINT pt2) {
 	return (sqrt(pow((pt1.x - pt2.x), 2) + pow((pt1.y - pt2.y), 2)));
 }
@@ -328,8 +389,6 @@ bool isObject(Position pos, LPARAM lParam, int type)
 	} break;
 	} return false;
 }
-
-
 void onSelect(HWND hWnd, LPARAM lParam, int& i)  {
 	CHILD_WND_DATA* data = (CHILD_WND_DATA*)GetWindowLongPtr(hWnd, 0);
 	static bool prev = false;
@@ -381,7 +440,6 @@ void onSelect(HWND hWnd, LPARAM lParam, int& i)  {
 		}
 	}
 }
-
 void deleteObject(HWND hwndMDIClient, int mode, int& i) {
 	if (mode == SELECT && i != -1) {
 		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);

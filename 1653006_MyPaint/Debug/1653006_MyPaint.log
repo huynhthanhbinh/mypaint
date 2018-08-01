@@ -1,4 +1,4 @@
-﻿  1653006_MyPaint.cpp
-e:\1653006_mypaint\1653006_mypaint\1653006_mypaint.cpp(25): warning C4302: 'type cast': truncation from 'LPWSTR' to 'WORD'
-e:\1653006_mypaint\1653006_mypaint\1653006_mypaint.cpp(26): warning C4302: 'type cast': truncation from 'LPWSTR' to 'WORD'
+﻿  1653006_MyObject.cpp
+  1653006_MyPaint.cpp
+  Generating Code...
   1653006_MyPaint.vcxproj -> E:\1653006_MyPaint\Debug\1653006_MyPaint.exe
