@@ -440,6 +440,8 @@ void onSelect(HWND hWnd, LPARAM lParam, int& i)  {
 		}
 	}
 }
+
+
 void deleteObject(HWND hwndMDIClient, int mode, int& i) {
 	if (mode == SELECT && i != -1) {
 		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
@@ -522,7 +524,30 @@ void pasteObject(HWND hwndMDIClient, int mode, int i) {
 			CloseClipboard(); return;
 		} 
 		else if (hCFText) {
-			
+			WCHAR* str = (WCHAR*)GlobalLock(hCFText);
+			MyText* t = new MyText;
+
+			CopyMemory(t->str, str, sizeof(t->str));
+
+			SIZE size;
+			HDC hdc = GetDC(current);
+			HFONT hFont = CreateFontIndirect(&data->logFont);
+			SelectObject(hdc, hFont);
+			GetTextExtentPoint32(hdc, str, wcslen(str), &size);
+
+			t->pos.x1 = 100;
+			t->pos.y1 = 100;
+			t->pos.x2 = t->pos.x1 + size.cx;
+			t->pos.y2 = t->pos.y1 + size.cy;
+			t->rgbColor = data->rgbColor;
+			t->logFont = data->logFont;
+			t->type = INSERTTEXT;
+			GlobalUnlock(hCFText);
+
+			data->arrObject.push_back(t);
+
+			DeleteObject(hFont);
+			ReleaseDC(current, hdc);
 			InvalidateRect(current, NULL, TRUE); 
 			CloseClipboard(); return;
 		} 

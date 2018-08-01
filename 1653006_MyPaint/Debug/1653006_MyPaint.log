@@ -1,4 +1,3 @@
 ﻿  1653006_MyObject.cpp
-  1653006_MyPaint.cpp
-  Generating Code...
+e:\1653006_mypaint\1653006_mypaint\1653006_myobject.cpp(556): warning C4018: '<': signed/unsigned mismatch
   1653006_MyPaint.vcxproj -> E:\1653006_MyPaint\Debug\1653006_MyPaint.exe
