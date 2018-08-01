@@ -13,14 +13,6 @@ struct Position {
 	int x1, y1, x2, y2;
 };
 
-struct MYPAINT_OBJ {
-	int type;
-	Position pos;
-	COLORREF rgbColor;
-	LOGFONT logFont;
-	WCHAR str[MAX_LOADSTRING];
-};
-
 class Object {
 public:
 	int type;
@@ -88,6 +80,6 @@ double getDistance(POINT pt1, POINT pt2);
 bool isObject(Position pos, LPARAM lParam, int type);
 void onSelect(HWND hWnd, LPARAM lParam, int& i);
 
-void deleteObject(vector <Object*> &arrObj, int i);
+void deleteObject(HWND hwndMDIClient, int mode, int& i);
 
 #endif // !_MY_OBJECT_H_

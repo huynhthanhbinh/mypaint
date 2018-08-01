@@ -381,36 +381,30 @@ void onSelect(HWND hWnd, LPARAM lParam, int& i)  {
 		}
 	}
 }
-void CopyObject(HWND hWnd, Object* o) {
-	WCHAR szMyObjectFormat[16] = L"MY_PAINT_OBJECT";
-	int MyObjectFormatID = RegisterClipboardFormat(szMyObjectFormat);
-	HGLOBAL hgbMem = GlobalAlloc(GHND, sizeof(MYPAINT_OBJ));
-	MYPAINT_OBJ * obj = (MYPAINT_OBJ*)GlobalLock(hgbMem);
 
-	// Save To Clipboard
-	//obj->type = o->type;
-	//obj->pos = o->pos;
-	//obj->rgbColor = o->rgbColor;
-	//obj->str = o.
+void deleteObject(HWND hwndMDIClient, int mode, int& i) {
+	if (mode == SELECT && i != -1) {
+		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
+		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
 
-	GlobalUnlock(hgbMem);
-	if (OpenClipboard(hWnd)) {
-		EmptyClipboard();
-		SetClipboardData(MyObjectFormatID, hgbMem);
-		CloseClipboard();
+		WCHAR x[128]; OutputDebugString(L"\n");
+
+		for (unsigned int j = 0; j < data->arrObject.size(); j++) {
+			Object* obj = data->arrObject[j];
+			wsprintf(x, L"%d. Type = %d, x1 = %d, y1 = %d, x2 = %d, y2 = %d, R = %d, G = %d, B = %d\n",
+				j, obj->type, obj->pos.x1, obj->pos.y1, obj->pos.x2, obj->pos.y2,
+				GetRValue(obj->rgbColor), GetGValue(obj->rgbColor), GetBValue(obj->rgbColor));
+			OutputDebugString(x);
+		}
+
+		for (unsigned int j = i; j < data->arrObject.size() - 1; j++) {
+			swap(data->arrObject[j], data->arrObject[j + 1]);
+		} delete data->arrObject[data->arrObject.size() - 1];
+		data->arrObject.pop_back();
+
+		InvalidateRect(current, NULL, TRUE);
+		i = -1;
 	}
-}
-
-void deleteObject(vector <Object*> &arrObj, int i) {
-	WCHAR x[128];
-	wsprintf(x, L"i = %d", i);
-	MessageBox(NULL, x, L"i notice", MB_OK);
-
-
-	//Object* xObj = arrObj[i];
-	//delete xObj;
-	vector <Object*> ::iterator xpos = arrObj.begin();
-	arrObj.erase(arrObj.begin());
 }
 
 //void copyToClipboard(HWND hWnd) {
