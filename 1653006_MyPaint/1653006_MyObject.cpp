@@ -529,3 +529,7 @@ void pasteObject(HWND hwndMDIClient, int mode, int i) {
 		else return;
 	}
 }
+void cutObject(HWND hwndMDIClient, int mode, int& i) {
+	copyObject(hwndMDIClient, mode, i);
+	deleteObject(hwndMDIClient, mode, i);
+}
