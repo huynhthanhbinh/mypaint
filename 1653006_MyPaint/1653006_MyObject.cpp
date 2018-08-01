@@ -112,8 +112,8 @@ void MyLine::copy(HWND hWnd) {
 	HGLOBAL hgbMem = GlobalAlloc(GHND, sizeof(MyLine));
 	MyLine * l = (MyLine*)GlobalLock(hgbMem);
 	
-	ZeroMemory(&l, sizeof(MyLine));
-	CopyMemory(&l, this, sizeof(MyLine));
+	//ZeroMemory(&l, sizeof(MyLine));
+	CopyMemory(l, this, sizeof(MyLine));
 
 	GlobalUnlock(hgbMem);
 	if (OpenClipboard(hWnd)) {
@@ -127,8 +127,8 @@ void MyRectangle::copy(HWND hWnd) {
 	HGLOBAL hgbMem = GlobalAlloc(GHND, sizeof(MyRectangle));
 	MyRectangle * r = (MyRectangle*)GlobalLock(hgbMem);
 
-	ZeroMemory(&r, sizeof(MyRectangle));
-	CopyMemory(&r, this, sizeof(MyRectangle));
+	//ZeroMemory(&r, sizeof(MyRectangle));
+	CopyMemory(r, this, sizeof(MyRectangle));
 
 	GlobalUnlock(hgbMem);
 	if (OpenClipboard(hWnd)) {
@@ -140,10 +140,10 @@ void MyRectangle::copy(HWND hWnd) {
 void MyEllipse::copy(HWND hWnd) {
 	int nEllipseFormatID = RegisterClipboardFormat(L"myEllipse");
 	HGLOBAL hgbMem = GlobalAlloc(GHND, sizeof(MyEllipse));
-	MyEllipse * l = (MyEllipse*)GlobalLock(hgbMem);
+	MyEllipse * e = (MyEllipse*)GlobalLock(hgbMem);
 
-	ZeroMemory(&l, sizeof(MyEllipse));
-	CopyMemory(&l, this, sizeof(MyEllipse));
+	//ZeroMemory(&e, sizeof(MyEllipse));
+	CopyMemory(e, this, sizeof(MyEllipse));
 
 	GlobalUnlock(hgbMem);
 	if (OpenClipboard(hWnd)) {
@@ -155,10 +155,10 @@ void MyEllipse::copy(HWND hWnd) {
 void MyText::copy(HWND hWnd) {
 	int nTextFormatID = RegisterClipboardFormat(L"myText");
 	HGLOBAL hgbMem = GlobalAlloc(GHND, sizeof(MyText));
-	MyText * l = (MyText*)GlobalLock(hgbMem);
+	MyText * t = (MyText*)GlobalLock(hgbMem);
 
-	ZeroMemory(&l, sizeof(MyText));
-	CopyMemory(&l, this, sizeof(MyText));
+	//ZeroMemory(&t, sizeof(MyText));
+	CopyMemory(t, this, sizeof(MyText));
 
 	GlobalUnlock(hgbMem);
 	if (OpenClipboard(hWnd)) {
@@ -462,6 +462,13 @@ void deleteObject(HWND hwndMDIClient, int mode, int& i) {
 
 		InvalidateRect(current, NULL, TRUE);
 		i = -1;
+	}
+}
+void copyObject(HWND hwndMDIClient, int mode, int i) {
+	if (mode == SELECT && i != -1) {
+		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
+		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
+		if (data != NULL) data->arrObject[i]->copy(current);
 	}
 }
 

@@ -85,6 +85,7 @@ double getDistance(POINT pt1, POINT pt2);
 bool isObject(Position pos, LPARAM lParam, int type);
 void onSelect(HWND hWnd, LPARAM lParam, int& i);
 
+void copyObject(HWND hwndMDIClient, int mode, int i);
 void deleteObject(HWND hwndMDIClient, int mode, int& i);
 
 #endif // !_MY_OBJECT_H_
