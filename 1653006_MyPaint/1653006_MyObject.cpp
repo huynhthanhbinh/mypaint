@@ -479,23 +479,28 @@ void pasteObject(HWND hwndMDIClient, int mode, int i) {
 
 		if (hLine) {
 
-			InvalidateRect(current, NULL, TRUE); return;
+			InvalidateRect(current, NULL, TRUE); 
+			CloseClipboard(); return;
 		} 
 		else if (hRectangle) {
 
-			InvalidateRect(current, NULL, TRUE); return;
+			InvalidateRect(current, NULL, TRUE); 
+			CloseClipboard(); return;
 		} 
 		else if (hEllipse) {
 
-			InvalidateRect(current, NULL, TRUE); return;
+			InvalidateRect(current, NULL, TRUE); 
+			CloseClipboard(); return;
 		}
 		else if (hText) {
 
-			InvalidateRect(current, NULL, TRUE); return;
+			InvalidateRect(current, NULL, TRUE); 
+			CloseClipboard(); return;
 		} 
 		else if (hCFText) {
 			
-			InvalidateRect(current, NULL, TRUE); return;
+			InvalidateRect(current, NULL, TRUE); 
+			CloseClipboard(); return;
 		} 
 		else return;
 	}
