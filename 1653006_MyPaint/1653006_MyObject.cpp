@@ -442,7 +442,6 @@ void onSelect(HWND hWnd, LPARAM lParam, int& i)  {
 }
 void deleteObject(HWND hwndMDIClient, int mode, int& i) {
 	if (mode == SELECT && i != -1) {
-		//MessageBox(NULL, L"EDIT DELETE", L"NOTICE", MB_OK);
 		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
 
@@ -457,52 +456,47 @@ void deleteObject(HWND hwndMDIClient, int mode, int& i) {
 }
 void copyObject(HWND hwndMDIClient, int mode, int i) {
 	if (mode == SELECT && i != -1) {
-		//MessageBox(NULL, L"EDIT COPY", L"NOTICE", MB_OK);
 		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
 		if (data != NULL) data->arrObject[i]->copy(current);
 	}
 }
+void pasteObject(HWND hwndMDIClient, int mode, int i) {
+	HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
+	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
 
+	if (OpenClipboard(hwndMDIClient)) {
+		int nLineFormatID      = RegisterClipboardFormat(L"myLine");
+		int nRectangleFormatID = RegisterClipboardFormat(L"myRectangle");
+		int nEllipseFormatID   = RegisterClipboardFormat(L"myEllipse");
+		int nTextFormatID      = RegisterClipboardFormat(L"myText");
 
-//void copyToClipboard(HWND hWnd) {
-//	if (mode == SELECT_AREA) { // dữ liệu dạng chuẩn
-//		HDC hdc = GetDC(hWnd);
-//		HDC memSourceDC = CreateCompatibleDC(hdc);
-//		SelectObject(memSourceDC, hBitmap);
-//		HDC memDestDC = CreateCompatibleDC(hdc);
-//		HBITMAP hCopyBitmap = CreateCompatibleBitmap(hdc, _x2 - _x1, _y2 - _y1);
-//		SelectObject(memDestDC, hCopyBitmap);
-//
-//		BitBlt(memDestDC, 0, 0, _x2 - _x1, _y2 - _y1,
-//			memSourceDC, _x1, _y1, SRCCOPY);
-//
-//		if (OpenClipboard(hWnd)) {
-//			EmptyClipboard();
-//			SetClipboardData(CF_BITMAP, hCopyBitmap);
-//			CloseClipboard();
-//		}
-//
-//		DeleteDC(memSourceDC);
-//		DeleteDC(memDestDC);
-//		DeleteObject(hCopyBitmap);
-//		ReleaseDC(hWnd, hdc);
-//	}
-//	else { // dữ liêu dạng không chuản 
-//		// copy the ellipse area object to clipboard 
-//		int nEllipseFormatID = RegisterClipboardFormat(szEllipseFormat);
-//		HGLOBAL hgbMem = GlobalAlloc(GHND, sizeof(ELLIPSE_OBJ));
-//		ELLIPSE_OBJ * p = (ELLIPSE_OBJ*)GlobalLock(hgbMem);
-//		p->x1 = _x1;
-//		p->y1 = _y1;
-//		p->x2 = _x2;
-//		p->y2 = _y2;
-//		GlobalUnlock(hgbMem);
-//		if (OpenClipboard(hWnd)) {
-//			EmptyClipboard();
-//			SetClipboardData(nEllipseFormatID, hgbMem);
-//			CloseClipboard();
-//		}
-//	}
-//}
+		HANDLE hLine      = GetClipboardData(nLineFormatID);
+		HANDLE hRectangle = GetClipboardData(nRectangleFormatID);
+		HANDLE hEllipse   = GetClipboardData(nEllipseFormatID);
+		HANDLE hText      = GetClipboardData(nTextFormatID);
+		HANDLE hCFText    = GetClipboardData(CF_UNICODETEXT);
 
+		if (hLine) {
+
+			InvalidateRect(current, NULL, TRUE); return;
+		} 
+		else if (hRectangle) {
+
+			InvalidateRect(current, NULL, TRUE); return;
+		} 
+		else if (hEllipse) {
+
+			InvalidateRect(current, NULL, TRUE); return;
+		}
+		else if (hText) {
+
+			InvalidateRect(current, NULL, TRUE); return;
+		} 
+		else if (hCFText) {
+			
+			InvalidateRect(current, NULL, TRUE); return;
+		} 
+		else return;
+	}
+}
