@@ -471,28 +471,52 @@ void pasteObject(HWND hwndMDIClient, int mode, int i) {
 		int nEllipseFormatID   = RegisterClipboardFormat(L"myEllipse");
 		int nTextFormatID      = RegisterClipboardFormat(L"myText");
 
-		HANDLE hLine      = GetClipboardData(nLineFormatID);
-		HANDLE hRectangle = GetClipboardData(nRectangleFormatID);
-		HANDLE hEllipse   = GetClipboardData(nEllipseFormatID);
-		HANDLE hText      = GetClipboardData(nTextFormatID);
-		HANDLE hCFText    = GetClipboardData(CF_UNICODETEXT);
+		HGLOBAL hLine      = GetClipboardData(nLineFormatID);
+		HGLOBAL hRectangle = GetClipboardData(nRectangleFormatID);
+		HGLOBAL hEllipse   = GetClipboardData(nEllipseFormatID);
+		HGLOBAL hText      = GetClipboardData(nTextFormatID);
+		HGLOBAL hCFText    = GetClipboardData(CF_UNICODETEXT);
 
 		if (hLine) {
+			MyLine* p = (MyLine*)GlobalLock(hLine);
+			MyLine* l = new MyLine;
+			CopyMemory(l, p, sizeof(MyLine));
+			GlobalUnlock(hLine);
+
+			data->arrObject.push_back(l);
 
 			InvalidateRect(current, NULL, TRUE); 
 			CloseClipboard(); return;
 		} 
 		else if (hRectangle) {
+			MyRectangle* p = (MyRectangle*)GlobalLock(hRectangle);
+			MyRectangle* r = new MyRectangle;
+			CopyMemory(r, p, sizeof(MyRectangle));
+			GlobalUnlock(hRectangle);
+
+			data->arrObject.push_back(r);
 
 			InvalidateRect(current, NULL, TRUE); 
 			CloseClipboard(); return;
 		} 
 		else if (hEllipse) {
+			MyEllipse* p = (MyEllipse*)GlobalLock(hEllipse);
+			MyEllipse* e = new MyEllipse;
+			CopyMemory(e, p, sizeof(MyEllipse));
+			GlobalUnlock(hEllipse);
+
+			data->arrObject.push_back(e);
 
 			InvalidateRect(current, NULL, TRUE); 
 			CloseClipboard(); return;
 		}
 		else if (hText) {
+			MyText* p = (MyText*)GlobalLock(hText);
+			MyText* t = new MyText;
+			CopyMemory(t, p, sizeof(MyText));
+			GlobalUnlock(hText);
+
+			data->arrObject.push_back(t);
 
 			InvalidateRect(current, NULL, TRUE); 
 			CloseClipboard(); return;
