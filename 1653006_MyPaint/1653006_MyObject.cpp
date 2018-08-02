@@ -266,7 +266,7 @@ void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mod
 
 	//MessageBox(NULL, L"LBUTTON DOWN", L"NOTICE", MB_OK);
 }
-void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode, bool mouse_down) {
+void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode, bool mouse_down, int i) {
 	//if ((wParam & MK_LBUTTON) == MK_LBUTTON) {
 	if (mouse_down == true) {
 		HDC hdc = GetDC(hWnd);
@@ -279,20 +279,20 @@ void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mod
 		SelectObject(hdc, hPen);
 
 		// Vẽ đường thẳng cũ 
-		drawObject(hWnd, hdc, pos, mode);
+		drawObject(hWnd, lParam, hdc, pos, mode, data, i);
 
 		// Cập nhật điểm mới !!!
 		pos.x2 = LOWORD(lParam);
 		pos.y2 = HIWORD(lParam);
 
 		// Vẽ đường thẳng mới (do mode NOT_XOR)
-		drawObject(hWnd, hdc, pos, mode);
+		drawObject(hWnd, lParam, hdc, pos, mode, data, i);
 
 		DeleteObject(hPen);
 		ReleaseDC(hWnd, hdc);
 	}
 }
-bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode) {
+bool drawObject(HWND hWnd, LPARAM lParam, HDC dc, Position pos, int mode, CHILD_WND_DATA* data, int i) {
 	switch (mode) {
 	case LINE:
 		MoveToEx(dc, pos.x1, pos.y1, NULL);
@@ -406,35 +406,10 @@ void onSelect(HWND hWnd, LPARAM lParam, int& i)  {
 			
 			WCHAR mess[MAX_LOADSTRING];
 			wsprintf(mess, L"\n\nObject: %d\n\n", i);
-			//MessageBox(NULL, mess, L"NOTICE", MB_OK);
 			OutputDebugString(mess);
 
-			HDC hdc = GetDC(hWnd);
-			SetBkMode(hdc, TRANSPARENT);
+			drawFrame(hWnd, data, i);
 
-
-			Position pos = data->arrObject[i]->pos;
-			if (pos.x1 > pos.x2) swap(pos.x1, pos.x2);
-			if (pos.y1 > pos.y2) swap(pos.y1, pos.y2);
-
-			HPEN hPen = CreatePen(PS_DASHDOT, 1, RGB(255, 0, 0));
-
-			Rectangle(hdc, pos.x1 - 6, pos.y1 - 6, pos.x1 + 2, pos.y1 + 2);
-			Rectangle(hdc, pos.x1 - 6, pos.y2 - 2, pos.x1 + 2, pos.y2 + 6);
-			Rectangle(hdc, pos.x2 - 2, pos.y1 - 6, pos.x2 + 6, pos.y1 + 2);
-			Rectangle(hdc, pos.x2 - 2, pos.y2 - 2, pos.x2 + 6, pos.y2 + 6);
-
-			SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
-
-			SelectObject(hdc, hPen);
-			Rectangle(hdc,
-				pos.x1 - 3,
-				pos.y1 - 3,
-				pos.x2 + 3,
-				pos.y2 + 3);
-			
-			DeleteObject(hPen);
-			ReleaseDC(hWnd, hdc);
 			prev = true;
 			break;
 		}
@@ -559,4 +534,64 @@ void pasteObject(HWND hwndMDIClient, int mode, int i) {
 void cutObject(HWND hwndMDIClient, int mode, int& i) {
 	copyObject(hwndMDIClient, mode, i);
 	deleteObject(hwndMDIClient, mode, i);
+}
+void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, int i, int& prev_i) {
+	// prev_i = -1
+	if (mouse_down == true && i != -1) {
+		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
+		Object* obj = data->arrObject[i];
+
+		RECT rect;
+		Position tpos;
+
+		paintRect(hWnd, tpos, obj->pos, rect, 20);
+
+		pos.x2 = LOWORD(lParam);
+		pos.y2 = HIWORD(lParam);
+
+		static Position xpos;
+		if (prev_i == -1) xpos = data->arrObject[i]->pos;
+
+		int dx = pos.x2 - pos.x1;
+		int dy = pos.y2 - pos.y1;
+
+		obj->pos.x1 = xpos.x1 + dx; 
+		obj->pos.x2 = xpos.x2 + dx;
+		obj->pos.y1 = xpos.y1 + dy;
+		obj->pos.y2 = xpos.y2 + dy;
+
+		paintRect(hWnd, tpos, obj->pos, rect, 20);
+		prev_i = i;
+	}
+}
+void paintRect(HWND hWnd, Position& tpos, Position pos, RECT& rect, int x) {
+	tpos = pos;
+	if (tpos.x1 > tpos.x2) swap(tpos.x1, tpos.x2);
+	if (tpos.y1 > tpos.y2) swap(tpos.y1, tpos.y2);
+	rect.left = tpos.x1 - x;
+	rect.top = tpos.y1 - x;
+	rect.right = tpos.x2 + x;
+	rect.bottom = tpos.y2 + x;
+	InvalidateRect(hWnd, &rect, TRUE);
+}
+void drawFrame(HWND hWnd, CHILD_WND_DATA* data, int i) {
+	Position p = data->arrObject[i]->pos;
+	if (p.x1 > p.x2) swap(p.x1, p.x2);
+	if (p.y1 > p.y2) swap(p.y1, p.y2);
+
+	HDC hdc = GetDC(hWnd);
+	SetBkMode(hdc, TRANSPARENT);
+	HPEN hPen = CreatePen(PS_DASHDOT, 1, RGB(255, 0, 0));
+
+	Rectangle(hdc, p.x1 - 6, p.y1 - 6, p.x1 + 2, p.y1 + 2);
+	Rectangle(hdc, p.x1 - 6, p.y2 - 2, p.x1 + 2, p.y2 + 6);
+	Rectangle(hdc, p.x2 - 2, p.y1 - 6, p.x2 + 6, p.y1 + 2);
+	Rectangle(hdc, p.x2 - 2, p.y2 - 2, p.x2 + 6, p.y2 + 6);
+
+	SelectObject(hdc, hPen);
+	SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
+	Rectangle(hdc, p.x1 - 3, p.y1 - 3, p.x2 + 3, p.y2 + 3);
+
+	DeleteObject(hPen);
+	ReleaseDC(hWnd, hdc);
 }

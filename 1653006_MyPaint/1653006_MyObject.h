@@ -70,9 +70,9 @@ public:
 void OnPaint(HWND hWnd);
 void onLButtonDownText(HWND hWnd, HWND& hEdit, Position& pos);
 void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mode, bool& mouse_down, int& i);
-void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode, bool mouse_down);
+void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode, bool mouse_down, int i);
 void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode, bool& mouse_down);
-bool drawObject(HWND hWnd, HDC dc, Position& pos, int mode);
+bool drawObject(HWND hWnd, LPARAM lParam, HDC dc, Position pos, int mode, CHILD_WND_DATA* data, int i);
 bool checkSamePoint(Position pos);
 bool clearObjArray(HWND hWndClient);
 
@@ -89,5 +89,11 @@ void cutObject(HWND hwndMDIClient, int mode, int& i);
 void copyObject(HWND hwndMDIClient, int mode, int i);
 void pasteObject(HWND hwndMDIClient, int mode, int i);
 void deleteObject(HWND hwndMDIClient, int mode, int& i);
+
+
+void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, int i, int& prev_i);
+void paintRect(HWND hWnd, Position& tpos, Position pos, RECT& rect, int x);
+void drawFrame(HWND hWnd, CHILD_WND_DATA* data, int i);
+
 
 #endif // !_MY_OBJECT_H_
