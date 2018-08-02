@@ -467,6 +467,8 @@ void pasteObject(HWND hwndMDIClient, int mode, int i) {
 	HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
 	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
 
+	if (data == NULL) return;
+
 	if (OpenClipboard(hwndMDIClient)) {
 		int nLineFormatID      = RegisterClipboardFormat(L"myLine");
 		int nRectangleFormatID = RegisterClipboardFormat(L"myRectangle");
