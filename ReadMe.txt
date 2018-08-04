@@ -6,36 +6,24 @@ FIT - HCMUS
 MyPaint - Personal Project
 Course: Programming Windows
 
-P2 ( 2018/Jul/08th )
+P3 ( 2018/Aug/2nd )
 
 Debug: x86 Local Windows Debugger !!!
 
-ĐÃ HOÀN THÀNH :
-+ Khi user chọn toolbar button / menu item -> draw tương ứng
-+ Toolbar button added by default : 
-	-> New | Open | Save | Print || Line | Ellipse | Rectangle | Select | Text || ColorDlg || FontDlg
-+ Tạo cấu trúc dữ liệu, lưu trữ cho 4 object: Line, Rectangle, Ellipse, Text
-	-> Em dùng lập trình hướng đối tượng, 4 đối tượng kế thừa Object và 1 vector dạng <Object*> 
-+ Color, Font được lưu trữ riêng cho mỗi child window (lưu trữ trong struct CHILD_WND_DATA)
-+ Object đã vẽ lưu trữ riêng cho mỗi child window (lưu trữ trong struct CHILD_WND_DATA (vector <object*>)
-+ Vẽ lại các object cho Child Window (WM_PAINT)
-+ Save File, lưu dưới dạng ios::binary, extension ".drw" thành công
-+ Open File, đọc dưới dạng ios::binary, extension ".drw" thành công
-+ On Save : File Save Title Default = "Noname-*.drw" (GetWindowText)
-+ On Open : Gán thành công tên file lên title child window (SetWindowText)
-
-
-CHƯA HOÀN THÀNH :
-- Mode Insert Text 
-- Mode Select (Edit Object)
+ĐÃ HOÀN THÀNH : tất cả các yêu cầu của project P3, gồm:
+- Add menu popup Edit sau File gồm các menu item: Cut, Copy, Paste, Delete.
+- Add thêm vào toolbar: Cut, Copy, Paste, Delete.
+- Add phím tắt cho: Cut, Copy, Paste, Delete.
+- Hoàn thành 4 chức năng Cut, Copy, Paste, Delete.
+- Paste được CF_Text gán font, color theo font, color đang được chọn của childwindow.
 
 
 KHÁC /LÀM THÊM :
-- Set default draw mode: Line 
-- Set default child window rgb color black (rgb 0,0,0)
-- Toolbar draw checked by mode 
-- warning trước khi close program
-- Lưu trữ project trên repository của BitBucket
+- Move được object (mode select object) .
+- Khung select bên ngoài (mode select object) .
+- Set default draw mode: Line .
+- Toolbar draw checked by mode .
+- Lưu trữ project trên repository của BitBucket .
 
 
 Link Bitbucket << in private mode at the moment >>
@@ -49,4 +37,4 @@ Tham khảo:
 
 
 Phiên bản Visual Studio:
-- VS2017 Community v15.7.4
+- VS2017 Community v15.7.5
