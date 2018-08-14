@@ -91,8 +91,8 @@ void pasteObject(HWND hwndMDIClient, int mode, int i);
 void deleteObject(HWND hwndMDIClient, int mode, int& i);
 
 
-void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, int i, int& prev_i);
-void paintRect(HWND hWnd, Position& tpos, Position pos, RECT& rect, int x);
+void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, int i, int& prev_i, int& sMode);
+void paintRect(HWND hWnd, Position tpos, RECT& rect, int x);
 void drawFrame(HWND hWnd, CHILD_WND_DATA* data, int i);
 
 

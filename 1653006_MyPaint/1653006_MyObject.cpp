@@ -535,39 +535,57 @@ void cutObject(HWND hwndMDIClient, int mode, int& i) {
 	copyObject(hwndMDIClient, mode, i);
 	deleteObject(hwndMDIClient, mode, i);
 }
-void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, int i, int& prev_i) {
+void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, int i, int& prev_i, int& sMode) {
 	// prev_i = -1
-	if (mouse_down == true && i != -1) {
+	if (i != -1) {
+		int x = LOWORD(lParam);
+		int y = HIWORD(lParam);
+
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
 		Object* obj = data->arrObject[i];
 
-		RECT rect;
-		Position tpos;
+		Position p = obj->pos;
+		if (p.x1 > p.x2) swap(p.x1, p.x2);
+		if (p.y1 > p.y2) swap(p.y1, p.y2);
 
-		paintRect(hWnd, tpos, obj->pos, rect, 20);
+		
+		if (x >= p.x1 - 6 && x <= p.x1 + 2) {
+			if (y >= p.y1 - 6 && y <= p.y1 + 2) sMode = RESIZE_1;
+			else if (y >= p.y2 - 2 && y <= p.y2 + 6) sMode = RESIZE_2;
+			else sMode = -1;
+		}
+		else if (x >= p.x2 - 2 && x <= p.x2 + 6) {
+			if (y >= p.y1 - 6 && y <= p.y1 + 2) sMode = RESIZE_2;
+			else if (y >= p.y2 - 2 && y <= p.y2 + 6) sMode = RESIZE_1;
+			else sMode = -1;
+		}
+		else sMode = -1;
 
-		pos.x2 = LOWORD(lParam);
-		pos.y2 = HIWORD(lParam);
+		if (mouse_down == true) { // object is being chosen
+			RECT rect;
 
-		static Position xpos;
-		if (prev_i == -1) xpos = data->arrObject[i]->pos;
+			paintRect(hWnd, p, rect, 20);
 
-		int dx = pos.x2 - pos.x1;
-		int dy = pos.y2 - pos.y1;
+			pos.x2 = x;
+			pos.y2 = y;
 
-		obj->pos.x1 = xpos.x1 + dx; 
-		obj->pos.x2 = xpos.x2 + dx;
-		obj->pos.y1 = xpos.y1 + dy;
-		obj->pos.y2 = xpos.y2 + dy;
+			static Position xpos;
+			if (prev_i == -1) xpos = data->arrObject[i]->pos; // 1st click select object --> then move
 
-		paintRect(hWnd, tpos, obj->pos, rect, 20);
-		prev_i = i;
+			int dx = pos.x2 - pos.x1;
+			int dy = pos.y2 - pos.y1;
+
+			obj->pos.x1 = xpos.x1 + dx;
+			obj->pos.x2 = xpos.x2 + dx;
+			obj->pos.y1 = xpos.y1 + dy;
+			obj->pos.y2 = xpos.y2 + dy;
+
+			paintRect(hWnd, p, rect, 20);
+			prev_i = i;
+		}
 	}
 }
-void paintRect(HWND hWnd, Position& tpos, Position pos, RECT& rect, int x) {
-	tpos = pos;
-	if (tpos.x1 > tpos.x2) swap(tpos.x1, tpos.x2);
-	if (tpos.y1 > tpos.y2) swap(tpos.y1, tpos.y2);
+void paintRect(HWND hWnd, Position tpos, RECT& rect, int x) {
 	rect.left = tpos.x1 - x;
 	rect.top = tpos.y1 - x;
 	rect.right = tpos.x2 + x;
