@@ -242,7 +242,7 @@ void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode
 	wsprintf(s, L"\n\n\nNumbers of object: %d\n\n\n", data->arrObject.size()); OutputDebugString(s);
 	return;
 }
-void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mode, bool& mouse_down, int& i) {
+void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mode, bool& mouse_down, int& i, int& sMode) {
 	SetCapture(hWnd); // Capture mouse input
 	RECT rect;
 	POINT upperleft, lowerright;
@@ -257,7 +257,7 @@ void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mod
 	ClipCursor(&rect);
 
 	if (mode == INSERTTEXT) onLButtonDownText(hWnd, hEdit, pos);
-	if (mode == SELECT) onSelect(hWnd, lParam, i);
+	if (mode == SELECT) onSelect(hWnd, lParam, i, sMode);
 
 	pos.x1 = pos.x2 = LOWORD(lParam);
 	pos.y1 = pos.y2 = HIWORD(lParam);
@@ -389,7 +389,7 @@ bool isObject(Position pos, LPARAM lParam, int type)
 	} break;
 	} return false;
 }
-void onSelect(HWND hWnd, LPARAM lParam, int& i)  {
+void onSelect(HWND hWnd, LPARAM lParam, int& i, int& sMode)  {
 	CHILD_WND_DATA* data = (CHILD_WND_DATA*)GetWindowLongPtr(hWnd, 0);
 	static bool prev = false;
 
@@ -403,12 +403,17 @@ void onSelect(HWND hWnd, LPARAM lParam, int& i)  {
 
 	for (i = data->arrObject.size() - 1; i >= 0; i--) {
 		if (isObject(data->arrObject[i]->pos, lParam, data->arrObject[i]->type)) {
-			
 			WCHAR mess[MAX_LOADSTRING];
 			wsprintf(mess, L"\n\nObject: %d\n\n", i);
 			OutputDebugString(mess);
 
 			drawFrame(hWnd, data, i);
+			
+			// change cursor to IDC_SIZEALL
+			sMode = MOVE;
+			HCURSOR sall = LoadCursor(NULL, IDC_SIZEALL);
+			SetCursor(sall);
+			DestroyCursor(sall);
 
 			prev = true;
 			break;
@@ -548,18 +553,7 @@ void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, i
 		if (p.x1 > p.x2) swap(p.x1, p.x2);
 		if (p.y1 > p.y2) swap(p.y1, p.y2);
 
-		
-		if (x >= p.x1 - 6 && x <= p.x1 + 2) {
-			if (y >= p.y1 - 6 && y <= p.y1 + 2) sMode = RESIZE_1;
-			else if (y >= p.y2 - 2 && y <= p.y2 + 6) sMode = RESIZE_2;
-			else sMode = -1;
-		}
-		else if (x >= p.x2 - 2 && x <= p.x2 + 6) {
-			if (y >= p.y1 - 6 && y <= p.y1 + 2) sMode = RESIZE_2;
-			else if (y >= p.y2 - 2 && y <= p.y2 + 6) sMode = RESIZE_1;
-			else sMode = -1;
-		}
-		else sMode = -1;
+		if (prev_i == -1) sMode_convert(sMode, x, y, p);
 
 		if (mouse_down == true) { // object is being chosen
 			RECT rect;
@@ -612,4 +606,21 @@ void drawFrame(HWND hWnd, CHILD_WND_DATA* data, int i) {
 
 	DeleteObject(hPen);
 	ReleaseDC(hWnd, hdc);
+}
+void sMode_convert(int& sMode, int x, int y, Position p) {
+	if (x >= p.x1 - 6 && x <= p.x1) {                         
+		if (y >= p.y1 - 6 && y <= p.y1)      sMode = RESIZE_1; // top-left square
+		else if (y >= p.y2 && y <= p.y2 + 6) sMode = RESIZE_2; // bot-left square
+		else                                 sMode = -1;
+	}
+	else if (x >= p.x2 && x <= p.x2 + 6) {
+		if (y >= p.y1 - 6 && y <= p.y1)      sMode = RESIZE_2; // top-right square
+		else if (y >= p.y2 && y <= p.y2 + 6) sMode = RESIZE_1; // bot-right square
+		else                                 sMode = -1;
+	}
+	else if (x > p.x1 && x < p.x2) {
+		if (y > p.y1 && y < p.y2)            sMode = MOVE;     // inside the object
+		else                                 sMode = -1;
+	}
+	else                                     sMode = -1;
 }
