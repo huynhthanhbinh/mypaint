@@ -239,7 +239,7 @@ void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode
 		ShowWindow(hEdit, SW_NORMAL);
 		} break;
 	}
-	wsprintf(s, L"\n\n\nNumbers of object: %d\n\n\n", data->arrObject.size()); OutputDebugString(s);
+	wsprintf(s, L"\nNumbers of object: %d\n", data->arrObject.size()); OutputDebugString(s);
 	return;
 }
 void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mode, bool& mouse_down, int& i, int& sMode) {
@@ -401,10 +401,16 @@ void onSelect(HWND hWnd, LPARAM lParam, int& i, int& sMode)  {
 		prev = false;
 	}
 
+	WCHAR msg[MAX_LOADSTRING];
+	wsprintf(msg, L"\nsMode = %d\n", sMode);
+	OutputDebugString(msg);
+
+	if (sMode > 0) return;
+
 	for (i = data->arrObject.size() - 1; i >= 0; i--) {
 		if (isObject(data->arrObject[i]->pos, lParam, data->arrObject[i]->type)) {
 			WCHAR mess[MAX_LOADSTRING];
-			wsprintf(mess, L"\n\nObject: %d\n\n", i);
+			wsprintf(mess, L"\nObject No. %d\n", i);
 			OutputDebugString(mess);
 
 			drawFrame(hWnd, data, i);
@@ -555,7 +561,7 @@ void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, i
 
 		if (prev_i == -1) sMode_convert(sMode, x, y, p);
 
-		if (mouse_down == true) { // object is being chosen
+		if (mouse_down == true && sMode == 0) { // object is being chosen
 			RECT rect;
 
 			paintRect(hWnd, p, rect, 20);
