@@ -203,6 +203,18 @@ void addDrawToolBar(HINSTANCE hInst, HWND hToolBarWnd, bool Toolbar_Exist) {
 		exist = true;
 	} 
 }
+void ShowNotice(HWND hWnd, const WCHAR* MenuCaption) { // Huỳnh Thanh Bình
+	WCHAR mess[40] = L"Ban vua chon menu ";
+	wcscat_s(mess, MenuCaption);
+	MessageBox(hWnd, mess, L"NOTICE", MB_OK);
+}
+void addViewColor() {
+	
+
+	
+}
+
+
 void CheckMenuDraw(HWND hWnd, UINT MenuItemID) { // Huỳnh Thanh Bình
 	HMENU hMenu = GetSubMenu(GetMenu(hWnd), menuPos_Draw);
 
@@ -215,13 +227,35 @@ void CheckToolbarDraw(HWND hToolBarWnd, UINT MenuItemID) {
 		SendMessage(hToolBarWnd, TB_SETSTATE, i, TBSTATE_ENABLED);
 	} SendMessage(hToolBarWnd, TB_SETSTATE, MenuItemID, TBSTATE_ENABLED | TBSTATE_CHECKED);
 }
-void ShowNotice(HWND hWnd, const WCHAR* MenuCaption) { // Huỳnh Thanh Bình
-	WCHAR mess[40] = L"Ban vua chon menu ";
-	wcscat_s(mess, MenuCaption);
-	MessageBox(hWnd, mess, L"NOTICE", MB_OK);
+void checkModeChange(bool& mode_change, HWND hwndMDIClient, int& i) {
+	if (mode_change == true) { // fix bug prev mode is select -> still have cover frame
+		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
+		InvalidateRect(current, NULL, TRUE);
+		i = -1; // fix bug prev mode is select --> still unselect (i != -1)
+		mode_change = false;
+	}
 }
-void addViewColor() {
-	
+void changeMode(int& mode, int new_mode, UINT MenuItemID, HWND hWnd, HWND hToolbarWnd, HWND hwndMDIClient, bool& mode_change,  int& i) {
+	mode = new_mode;
 
-	
+	if (mode == SELECT) mode_change = true;
+	else	            checkModeChange(mode_change, hwndMDIClient, i);
+
+	CheckMenuDraw(hWnd, MenuItemID);
+	CheckToolbarDraw(hToolbarWnd, MenuItemID);
+}
+void changeToolbarStye(HWND hWnd, HWND hToolbarWnd, int tbStyle) {
+	ToolbarStyle(hToolbarWnd, tbStyle);
+	HMENU hMenu = GetSubMenu(GetMenu(hWnd), menuPos_Toolbar);
+
+	if (tbStyle == TBSTYLE_FLAT) {
+		CheckMenuItem(hMenu, ID_TOOLBAR_FLAT, MF_CHECKED | MF_BYCOMMAND);
+		CheckMenuItem(hMenu, ID_TOOLBAR_TRANSPARENT, MF_UNCHECKED | MF_BYCOMMAND);
+		return;
+	}
+	else {
+		CheckMenuItem(hMenu, ID_TOOLBAR_FLAT, MF_UNCHECKED | MF_BYCOMMAND);
+		CheckMenuItem(hMenu, ID_TOOLBAR_TRANSPARENT, MF_CHECKED | MF_BYCOMMAND);
+		return;
+	}
 }
