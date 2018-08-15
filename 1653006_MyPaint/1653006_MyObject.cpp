@@ -401,10 +401,6 @@ void onSelect(HWND hWnd, LPARAM lParam, int& i, int& sMode)  {
 		prev = false;
 	}
 
-	WCHAR msg[MAX_LOADSTRING];
-	wsprintf(msg, L"\nsMode = %d\n", sMode);
-	OutputDebugString(msg);
-
 	if (sMode > 0) return;
 
 	for (i = data->arrObject.size() - 1; i >= 0; i--) {
@@ -547,7 +543,7 @@ void cutObject(HWND hwndMDIClient, int mode, int& i) {
 	deleteObject(hwndMDIClient, mode, i);
 }
 void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, int i, int& prev_i, int& sMode) {
-	// prev_i = -1
+	// prev_i = -1 when lbutton is up !!!
 	if (i != -1) {
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
@@ -559,29 +555,50 @@ void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, i
 		if (p.x1 > p.x2) swap(p.x1, p.x2);
 		if (p.y1 > p.y2) swap(p.y1, p.y2);
 
-		if (prev_i == -1) sMode_convert(sMode, x, y, p);
+		if (prev_i == -1 && mouse_down == false) sMode_convert(sMode, x, y, p);
 
-		if (mouse_down == true && sMode == 0) { // object is being chosen
+		if (mouse_down == true) { // object is being chosen , check mode is move
 			RECT rect;
+			
+			if (sMode == MOVE) {
+				paintRect(hWnd, p, rect, 10);
 
-			paintRect(hWnd, p, rect, 20);
+				pos.x2 = x;
+				pos.y2 = y;
 
-			pos.x2 = x;
-			pos.y2 = y;
+				static Position xpos;
+				if (prev_i == -1) xpos = data->arrObject[i]->pos; // 1st click select object --> then move
 
-			static Position xpos;
-			if (prev_i == -1) xpos = data->arrObject[i]->pos; // 1st click select object --> then move
+				int dx = pos.x2 - pos.x1;
+				int dy = pos.y2 - pos.y1;
 
-			int dx = pos.x2 - pos.x1;
-			int dy = pos.y2 - pos.y1;
+				obj->pos.x1 = xpos.x1 + dx;
+				obj->pos.x2 = xpos.x2 + dx;
+				obj->pos.y1 = xpos.y1 + dy;
+				obj->pos.y2 = xpos.y2 + dy;
 
-			obj->pos.x1 = xpos.x1 + dx;
-			obj->pos.x2 = xpos.x2 + dx;
-			obj->pos.y1 = xpos.y1 + dy;
-			obj->pos.y2 = xpos.y2 + dy;
+				paintRect(hWnd, p, rect, 10);
+				prev_i = i; 
+				return;
+			}
 
-			paintRect(hWnd, p, rect, 20);
-			prev_i = i;
+			if (obj->type == INSERTTEXT) return; // resize not use with object TEXT
+
+			switch (sMode) {
+			case RESIZE_1: {
+				
+			} break;
+			case RESIZE_2: {
+
+			} break;
+			case RESIZE_3: {
+
+			} break;
+			case RESIZE_4: {
+
+			} break;
+			default: break;
+			} 
 		}
 	}
 }
@@ -616,12 +633,12 @@ void drawFrame(HWND hWnd, CHILD_WND_DATA* data, int i) {
 void sMode_convert(int& sMode, int x, int y, Position p) {
 	if (x >= p.x1 - 6 && x <= p.x1) {                         
 		if (y >= p.y1 - 6 && y <= p.y1)      sMode = RESIZE_1; // top-left square
-		else if (y >= p.y2 && y <= p.y2 + 6) sMode = RESIZE_2; // bot-left square
+		else if (y >= p.y2 && y <= p.y2 + 6) sMode = RESIZE_3; // bot-left square
 		else                                 sMode = -1;
 	}
 	else if (x >= p.x2 && x <= p.x2 + 6) {
 		if (y >= p.y1 - 6 && y <= p.y1)      sMode = RESIZE_2; // top-right square
-		else if (y >= p.y2 && y <= p.y2 + 6) sMode = RESIZE_1; // bot-right square
+		else if (y >= p.y2 && y <= p.y2 + 6) sMode = RESIZE_4; // bot-right square
 		else                                 sMode = -1;
 	}
 	else if (x > p.x1 && x < p.x2) {
