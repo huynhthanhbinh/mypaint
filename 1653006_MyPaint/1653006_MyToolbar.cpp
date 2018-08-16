@@ -274,6 +274,18 @@ void CheckToolbarDraw(HWND hToolBarWnd, UINT MenuItemID) {
 		SendMessage(hToolBarWnd, TB_SETSTATE, i, TBSTATE_ENABLED);
 	} SendMessage(hToolBarWnd, TB_SETSTATE, MenuItemID, TBSTATE_ENABLED | TBSTATE_CHECKED);
 }
+void CheckMenuWindow(HWND hWnd, UINT MenuItemID) { // Huỳnh Thanh Bình
+	HMENU hMenu = GetSubMenu(GetMenu(hWnd), menuPos_Window);
+
+	for (UINT i = ID_WINDOW_CASCADE; i <= ID_WINDOW_HORIZONTAL; ++i) {
+		CheckMenuItem(hMenu, i, MF_UNCHECKED | MF_BYCOMMAND);
+	} CheckMenuItem(hMenu, MenuItemID, MF_CHECKED | MF_BYCOMMAND);
+}
+void CheckToolbarWindow(HWND hToolBarWnd, UINT MenuItemID) {
+	for (UINT i = ID_WINDOW_CASCADE; i <= ID_WINDOW_HORIZONTAL; ++i) {
+		SendMessage(hToolBarWnd, TB_SETSTATE, i, TBSTATE_ENABLED);
+	} SendMessage(hToolBarWnd, TB_SETSTATE, MenuItemID, TBSTATE_ENABLED | TBSTATE_CHECKED);
+}
 void checkModeChange(bool& mode_change, HWND hwndMDIClient, int& i) {
 	if (mode_change == true) { // fix bug prev mode is select -> still have cover frame
 		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);

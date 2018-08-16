@@ -20,6 +20,8 @@ void addWindowlBar(HINSTANCE hInst, HWND hToolBarWnd, bool Toolbar_Exist);
 
 void CheckMenuDraw(HWND hWnd, UINT MenuItemID);
 void CheckToolbarDraw(HWND hToolBarWnd, UINT MenuItemID);
+void CheckMenuWindow(HWND hWnd, UINT MenuItemID);
+void CheckToolbarWindow(HWND hToolBarWnd, UINT MenuItemID);
 void checkModeChange(bool& mode_change, HWND hwndMDIClient, int& i);
 void changeToolbarStye(HWND hWnd, HWND hToolbarWnd, int tbStyle);
 void changeMode(int& mode, int new_mode, UINT MenuItemID, HWND hWnd, HWND hToolbarWnd, HWND hwndMDIClient, bool& mode_change, int& i);
