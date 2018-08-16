@@ -401,7 +401,9 @@ void onSelect(HWND hWnd, LPARAM lParam, int& i, int& sMode)  {
 		prev = false;
 	}
 
-	if (sMode > 0) return;
+	if (sMode > -1) {
+		prev = true;  return;
+	}
 
 	for (i = data->arrObject.size() - 1; i >= 0; i--) {
 		if (isObject(data->arrObject[i]->pos, lParam, data->arrObject[i]->type)) {
@@ -689,9 +691,6 @@ void drawFrame(HWND hWnd, CHILD_WND_DATA* data, int i) {
 			Rectangle(hdc, p.x2 - 6, p.y2 - 4, p.x2 + 4, p.y2 + 6);
 			Rectangle(hdc, p.x1 - 4, p.y1 - 6, p.x1 + 6, p.y1 + 4);
 		}
-		SelectObject(hdc, hPen);
-		SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
-		Rectangle(hdc, p.x1 - 3, p.y1 - 3, p.x2 + 3, p.y2 + 3);
 	}
 
 	DeleteObject(hPen);
@@ -714,8 +713,8 @@ void sMode_convert(int& sMode, int x, int y, Position p, Object* obj) {
 					else                                 sMode = -1;
 				}
 				else if (x > p.x1 && x < p.x2) {
-					if (y > p.y1 && y < p.y2)            sMode = MOVE;     // inside the object
-					else                                 sMode = -1;
+					if (isObject(*pos, MAKELPARAM(x,y), LINE)) sMode = MOVE;     // inside the object
+					else                                       sMode = -1;
 				}
 				else                                     sMode = -1;
 			}
@@ -730,8 +729,8 @@ void sMode_convert(int& sMode, int x, int y, Position p, Object* obj) {
 					else                                 sMode = -1;
 				}
 				else if (x > p.x1 && x < p.x2) {
-					if (y > p.y1 && y < p.y2)            sMode = MOVE;     // inside the object
-					else                                 sMode = -1;
+					if (isObject(*pos, MAKELPARAM(x, y), LINE)) sMode = MOVE;     // inside the object
+					else                                        sMode = -1;
 				}
 				else                                     sMode = -1;
 			}
