@@ -26,4 +26,8 @@ void checkModeChange(bool& mode_change, HWND hwndMDIClient, int& i);
 void changeToolbarStye(HWND hWnd, HWND hToolbarWnd, int tbStyle);
 void changeMode(int& mode, int new_mode, UINT MenuItemID, HWND hWnd, HWND hToolbarWnd, HWND hwndMDIClient, bool& mode_change, int& i);
 
+
+void enableCommand(HWND hFrameWnd, HWND hToolBarWnd, int mode);
+void disableCommand(HWND hFrameWnd, HWND hToolBarWnd);
+
 #endif // _MY_TOOLBAR_H_

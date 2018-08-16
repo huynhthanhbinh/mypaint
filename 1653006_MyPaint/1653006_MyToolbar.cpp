@@ -318,3 +318,56 @@ void changeToolbarStye(HWND hWnd, HWND hToolbarWnd, int tbStyle) {
 		return;
 	}
 }
+
+
+void enableCommand(HWND hFrameWnd, HWND hToolBarWnd, int mode) {
+	HMENU hPopup = GetMenu(hFrameWnd);
+	EnableMenuItem(hPopup, menuPos_Edit, MF_ENABLED | MF_BYPOSITION);
+	EnableMenuItem(hPopup, menuPos_Draw, MF_ENABLED | MF_BYPOSITION);
+	EnableMenuItem(hPopup, menuPos_Window, MF_ENABLED | MF_BYPOSITION);
+
+	switch (mode) {
+	case LINE:
+		CheckMenuDraw(hFrameWnd, ID_DRAW_LINE);
+		CheckToolbarDraw(hToolBarWnd, ID_DRAW_LINE);
+		break;
+	case ELLIPSE:
+		CheckMenuDraw(hFrameWnd, ID_DRAW_ELLIPSE);
+		CheckToolbarDraw(hToolBarWnd, ID_DRAW_ELLIPSE);
+		break;
+	case RECTANGLE:
+		CheckMenuDraw(hFrameWnd, ID_DRAW_RECTANGLE);
+		CheckToolbarDraw(hToolBarWnd, ID_DRAW_RECTANGLE);
+		break;
+	case INSERTTEXT:
+		CheckMenuDraw(hFrameWnd, ID_DRAW_TEXT);
+		CheckToolbarDraw(hToolBarWnd, ID_DRAW_TEXT);
+		break;
+	case SELECT:
+		CheckMenuDraw(hFrameWnd, ID_DRAW_SELECTOBJECT);
+		CheckToolbarDraw(hToolBarWnd, ID_DRAW_SELECTOBJECT);
+		break;
+	}
+
+
+	CheckMenuWindow(hFrameWnd, ID_WINDOW_CASCADE);
+	CheckToolbarWindow(hToolBarWnd, ID_WINDOW_CASCADE);
+
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_CUT, TBSTATE_ENABLED);
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_COPY, TBSTATE_ENABLED);
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_PASTE, TBSTATE_ENABLED);
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_DELETE, TBSTATE_ENABLED);
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_DRAW_COLOR, TBSTATE_ENABLED);
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_DRAW_FONT, TBSTATE_ENABLED);
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_WINDOW_CLOSEALL, TBSTATE_ENABLED);
+}
+void disableCommand(HWND hFrameWnd, HWND hToolBarWnd) {
+	HMENU hPopup = GetMenu(hFrameWnd);
+	EnableMenuItem(hPopup, menuPos_Edit, MF_GRAYED | MF_BYPOSITION);
+	EnableMenuItem(hPopup, menuPos_Draw, MF_GRAYED | MF_BYPOSITION);
+	EnableMenuItem(hPopup, menuPos_Window, MF_GRAYED | MF_BYPOSITION);
+	DrawMenuBar(hFrameWnd);
+
+	for (UINT i = ID_EDIT_CUT; i <= ID_WINDOW_CLOSEALL; ++i)
+		SendMessage(hToolBarWnd, TB_SETSTATE, i, TBSTATE_INDETERMINATE);
+}
