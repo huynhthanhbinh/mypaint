@@ -15,6 +15,7 @@ void viewToolbar(HWND hWnd, HWND hToolBarWnd);
 void addEditToolbar(HWND hToolBarWnd, bool Toolbar_Exist);
 void addFontsNColors(HINSTANCE hInst, HWND hToolBarWnd, bool Toolbar_Exist);
 void addDrawToolBar(HINSTANCE hInst, HWND hToolBarWnd, bool Toolbar_Exist);
+void addWindowlBar(HINSTANCE hInst, HWND hToolBarWnd, bool Toolbar_Exist);
 
 
 void CheckMenuDraw(HWND hWnd, UINT MenuItemID);

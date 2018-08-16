@@ -90,6 +90,18 @@
     <Image Include="Button_ViewColor.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="wnd_cascade.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wnd_closeall.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wnd_horizontal.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wnd_vertical.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\ReadMe.txt" />

@@ -97,7 +97,7 @@ void addEditToolbar(HWND hToolBarWnd, bool Toolbar_Exist)
 	if (exist == false && Toolbar_Exist == true) {
 		TBBUTTON tbButtons[] =
 		{
-		{ 0, 0,	TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0 },
+		{ 20, 0,	TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0 },
 		{ STD_CUT, ID_EDIT_CUT, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 },
 		{ STD_COPY,	ID_EDIT_COPY, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 },
 		{ STD_PASTE, ID_EDIT_PASTE,	TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 },
@@ -117,7 +117,7 @@ void addFontsNColors(HINSTANCE hInst, HWND hToolBarWnd, bool Toolbar_Exist)
 	if (exist == false && Toolbar_Exist == true) {
 		TBBUTTON tbButtons[] =
 		{
-		{ 0, 0,	TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0 }, // seperator 
+		{ 20, 0,	TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0 }, // seperator 
 		{ 0, ID_DRAW_COLOR,	TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 },
 		{ 1, ID_DRAW_FONT,	TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 }
 		};
@@ -148,7 +148,7 @@ void addDrawToolBar(HINSTANCE hInst, HWND hToolBarWnd, bool Toolbar_Exist) {
 	if (exist == false && Toolbar_Exist == true) {
 		TBBUTTON tbButtons[] =
 		{
-		{ 0, 0,	TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0 }, // seperator 
+		{ 20, 0,	TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0 }, // seperator 
 		{ 0, ID_DRAW_LINE          , TBSTATE_ENABLED, TBSTYLE_BUTTON | TBSTYLE_CHECKGROUP, 0,0 },
 		{ 1, ID_DRAW_ELLIPSE       , TBSTATE_ENABLED, TBSTYLE_BUTTON | TBSTYLE_CHECKGROUP, 0,0 },
 		{ 2, ID_DRAW_RECTANGLE     , TBSTATE_ENABLED, TBSTYLE_BUTTON | TBSTYLE_CHECKGROUP, 0,0 },
@@ -202,6 +202,53 @@ void addDrawToolBar(HINSTANCE hInst, HWND hToolBarWnd, bool Toolbar_Exist) {
 
 		exist = true;
 	} 
+}
+void addWindowlBar(HINSTANCE hInst, HWND hToolBarWnd, bool Toolbar_Exist) {
+	static bool exist = false;
+	if (exist == false && Toolbar_Exist == true) {
+		TBBUTTON tbButtons[] =
+		{
+		{ 20, 0,	TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0 }, // seperator 
+		{ 0, ID_WINDOW_CASCADE   , TBSTATE_ENABLED, TBSTYLE_BUTTON | TBSTYLE_CHECKGROUP, 0,0 },
+		{ 1, ID_WINDOW_VERTICAL  , TBSTATE_ENABLED, TBSTYLE_BUTTON | TBSTYLE_CHECKGROUP, 0,0 },
+		{ 2, ID_WINDOW_HORIZONTAL, TBSTATE_ENABLED, TBSTYLE_BUTTON | TBSTYLE_CHECKGROUP, 0,0 },
+		{ 20, 0,	TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0 }, // seperator 
+		{ 3, ID_WINDOW_CLOSEALL  , TBSTATE_ENABLED, TBSTYLE_BUTTON                     , 0,0 },
+		};
+
+		tbButtons[1].fsState |= TBSTATE_CHECKED; // Set Cascade button default when create
+
+		TBADDBITMAP	tbBitmap[] =
+		{
+		{ hInst, IDB_WINDOW_CASCADE },
+		{ hInst, IDB_WINDOW_VERTICAL },
+		{ hInst, IDB_WINDOW_HORIZONTAL },
+		{ hInst, IDB_WINDOW_CLOSEALL },
+		};
+
+
+		// Add bitmap to Image-list of ToolBar
+		int idx = (int)
+		SendMessage(hToolBarWnd, TB_ADDBITMAP, (WPARAM)1, (LPARAM)(LPTBADDBITMAP)&tbBitmap[0]);
+		SendMessage(hToolBarWnd, TB_ADDBITMAP, (WPARAM)1, (LPARAM)(LPTBADDBITMAP)&tbBitmap[1]);
+		SendMessage(hToolBarWnd, TB_ADDBITMAP, (WPARAM)1, (LPARAM)(LPTBADDBITMAP)&tbBitmap[2]);
+		SendMessage(hToolBarWnd, TB_ADDBITMAP, (WPARAM)1, (LPARAM)(LPTBADDBITMAP)&tbBitmap[3]);
+
+
+		// identify the bitmap index of each button
+		tbButtons[1].iBitmap += idx;
+		tbButtons[2].iBitmap += idx;
+		tbButtons[3].iBitmap += idx;
+		tbButtons[5].iBitmap += idx;
+	
+
+
+		// add buttons to toolbar
+		SendMessage(hToolBarWnd, TB_ADDBUTTONS, (WPARAM) sizeof(tbButtons) / sizeof(TBBUTTON),
+			(LPARAM)(LPTBBUTTON)&tbButtons);
+
+		exist = true;
+	}
 }
 void ShowNotice(HWND hWnd, const WCHAR* MenuCaption) { // Huỳnh Thanh Bình
 	WCHAR mess[40] = L"Ban vua chon menu ";
