@@ -551,23 +551,27 @@ void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, i
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
 		Object* obj = data->arrObject[i];
 
+		static Position xpos;
 		Position p = obj->pos;
+
+
 		if (p.x1 > p.x2) swap(p.x1, p.x2);
 		if (p.y1 > p.y2) swap(p.y1, p.y2);
 
-		if (prev_i == -1 && mouse_down == false) sMode_convert(sMode, x, y, p);
+
+		if (prev_i == -1 && mouse_down == false) sMode_convert(sMode, x, y, p, obj);
 
 		if (mouse_down == true) { // object is being chosen , check mode is move
-			RECT rect;
-			
-			if (sMode == MOVE) {
-				paintRect(hWnd, p, rect, 10);
+			if (prev_i == -1) {
+				xpos = obj->pos; // 1st click select object --> then move
+			}
 
+			RECT rect;
+			paintRect(hWnd, p, rect, 10);
+
+			if (sMode == MOVE) {
 				pos.x2 = x;
 				pos.y2 = y;
-
-				static Position xpos;
-				if (prev_i == -1) xpos = data->arrObject[i]->pos; // 1st click select object --> then move
 
 				int dx = pos.x2 - pos.x1;
 				int dy = pos.y2 - pos.y1;
@@ -584,21 +588,65 @@ void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, i
 
 			if (obj->type == INSERTTEXT) return; // resize not use with object TEXT
 
+			WCHAR mess[MAX_LOADSTRING];
+			wsprintf(mess, L"\np.x1 = %d, p.y1 = %d, p.x2 = %d, p.y2 = %d\n", p.x1,p.y1,p.x2,p.y2);
+			OutputDebugString(mess);
+
 			switch (sMode) {
 			case RESIZE_1: {
-				
+				HCURSOR c = LoadCursor(NULL, IDC_SIZENWSE); SetCursor(c); DestroyCursor(c);
+
+				if (x <= p.x2) {
+					if (y <= p.y2) {p.x1 = x; p.y1 = y;}
+					else           sMode = RESIZE_3;
+				} 
+				else {
+					if (y <= p.y2) sMode = RESIZE_2;
+					else           sMode = RESIZE_4;
+				}
 			} break;
 			case RESIZE_2: {
+				HCURSOR c = LoadCursor(NULL, IDC_SIZENESW); SetCursor(c); DestroyCursor(c);
 
+				if (x >= p.x1) {
+					if (y <= p.y2) { p.x1 = x; p.y2 = y; }
+					else           sMode = RESIZE_4;
+				}
+				else {
+					if (y <= p.y2) sMode = RESIZE_1;
+					else           sMode = RESIZE_3;
+				}
 			} break;
 			case RESIZE_3: {
+				HCURSOR c = LoadCursor(NULL, IDC_SIZENESW); SetCursor(c); DestroyCursor(c);
+				p.y2 = p.y1;
 
+				if (x <= p.x2) {
+					if (y > p.y2) { p.x1 = x; p.y2 = y;}
+					else           sMode = RESIZE_1;
+				}
+				else {
+					if (y <= p.y2) sMode = RESIZE_2;
+					else           sMode = RESIZE_4;
+				}
 			} break;
 			case RESIZE_4: {
+				HCURSOR c = LoadCursor(NULL, IDC_SIZENWSE); SetCursor(c); DestroyCursor(c);
 
+				if (x >= p.x1) {
+					if (y > p.y2) { p.x1 = x; p.y1 = y; }
+					else           sMode = RESIZE_2;
+				}
+				else {
+					if (y <= p.y2) sMode = RESIZE_1;
+					else           sMode = RESIZE_3;
+				}
 			} break;
-			default: break;
 			} 
+			
+			if (obj->pos.x1 > obj->pos.x2) swap(p.x1, p.x2);
+			if (obj->pos.y1 > obj->pos.y2) swap(p.y1, p.y2);
+			obj->pos = p;
 		}
 	}
 }
@@ -611,39 +659,109 @@ void paintRect(HWND hWnd, Position tpos, RECT& rect, int x) {
 }
 void drawFrame(HWND hWnd, CHILD_WND_DATA* data, int i) {
 	Position p = data->arrObject[i]->pos;
-	if (p.x1 > p.x2) swap(p.x1, p.x2);
-	if (p.y1 > p.y2) swap(p.y1, p.y2);
-
 	HDC hdc = GetDC(hWnd);
 	SetBkMode(hdc, TRANSPARENT);
 	HPEN hPen = CreatePen(PS_DASHDOT, 1, RGB(255, 0, 0));
 
-	Rectangle(hdc, p.x1 - 6, p.y1 - 6, p.x1 + 2, p.y1 + 2);
-	Rectangle(hdc, p.x1 - 6, p.y2 - 2, p.x1 + 2, p.y2 + 6);
-	Rectangle(hdc, p.x2 - 2, p.y1 - 6, p.x2 + 6, p.y1 + 2);
-	Rectangle(hdc, p.x2 - 2, p.y2 - 2, p.x2 + 6, p.y2 + 6);
+	if (data->arrObject[i]->type != LINE) {
+		if (p.x1 > p.x2) swap(p.x1, p.x2);
+		if (p.y1 > p.y2) swap(p.y1, p.y2);
 
-	SelectObject(hdc, hPen);
-	SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
-	Rectangle(hdc, p.x1 - 3, p.y1 - 3, p.x2 + 3, p.y2 + 3);
+		Rectangle(hdc, p.x1 - 8, p.y1 - 8, p.x1 + 2, p.y1 + 2);
+		Rectangle(hdc, p.x1 - 8, p.y2 - 2, p.x1 + 2, p.y2 + 8);
+		Rectangle(hdc, p.x2 - 2, p.y1 - 8, p.x2 + 8, p.y1 + 2);
+		Rectangle(hdc, p.x2 - 2, p.y2 - 2, p.x2 + 8, p.y2 + 8);
+
+		SelectObject(hdc, hPen);
+		SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
+		Rectangle(hdc, p.x1 - 3, p.y1 - 3, p.x2 + 3, p.y2 + 3);
+	}
+	else { // obj-type is LINE
+		if (((double)(p.x1-p.x2) / (p.y1-p.y2)) >= 0) {
+			if (p.x1 > p.x2) swap(p.x1, p.x2);
+			if (p.y1 > p.y2) swap(p.y1, p.y2);
+			Rectangle(hdc, p.x1 - 6, p.y1 - 6, p.x1 + 4, p.y1 + 4);
+			Rectangle(hdc, p.x2 - 4, p.y2 - 4, p.x2 + 6, p.y2 + 6);
+		}
+		else { 
+			if (p.x1 < p.x2) swap(p.x1, p.x2);
+			if (p.y1 > p.y2) swap(p.y1, p.y2);
+			Rectangle(hdc, p.x2 - 6, p.y2 - 4, p.x2 + 4, p.y2 + 6);
+			Rectangle(hdc, p.x1 - 4, p.y1 - 6, p.x1 + 6, p.y1 + 4);
+		}
+		SelectObject(hdc, hPen);
+		SelectObject(hdc, GetStockObject(NULL_BRUSH)); // for NULL BRUSH OBJECT !!!!!
+		Rectangle(hdc, p.x1 - 3, p.y1 - 3, p.x2 + 3, p.y2 + 3);
+	}
 
 	DeleteObject(hPen);
 	ReleaseDC(hWnd, hdc);
 }
-void sMode_convert(int& sMode, int x, int y, Position p) {
-	if (x >= p.x1 - 6 && x <= p.x1) {                         
-		if (y >= p.y1 - 6 && y <= p.y1)      sMode = RESIZE_1; // top-left square
-		else if (y >= p.y2 && y <= p.y2 + 6) sMode = RESIZE_3; // bot-left square
-		else                                 sMode = -1;
+void sMode_convert(int& sMode, int x, int y, Position p, Object* obj) {
+	
+	switch (obj->type) {
+
+		case LINE: {
+			Position* pos = &obj->pos;
+
+			if (((double)(pos->x1 - pos->x2) / (pos->y1 - pos->y2)) >= 0) {
+				if (x >= p.x1 - 6 && x <= p.x1) {
+					if (y >= p.y1 - 6 && y <= p.y1)      sMode = RESIZE_1; // top-left square
+					else                                 sMode = -1;
+				}
+				else if (x >= p.x2 && x <= p.x2 + 6) {
+					if (y >= p.y2 && y <= p.y2 + 6)      sMode = RESIZE_4; // bot-right square
+					else                                 sMode = -1;
+				}
+				else if (x > p.x1 && x < p.x2) {
+					if (y > p.y1 && y < p.y2)            sMode = MOVE;     // inside the object
+					else                                 sMode = -1;
+				}
+				else                                     sMode = -1;
+			}
+
+			else {
+				if (x >= p.x1 - 6 && x <= p.x1) {
+					if (y >= p.y2 && y <= p.y2 + 6)      sMode = RESIZE_3; // bot-left square
+					else                                 sMode = -1;
+				}
+				else if (x >= p.x2 && x <= p.x2 + 6) {
+					if (y >= p.y1 - 6 && y <= p.y1)      sMode = RESIZE_2; // top-right square
+					else                                 sMode = -1;
+				}
+				else if (x > p.x1 && x < p.x2) {
+					if (y > p.y1 && y < p.y2)            sMode = MOVE;     // inside the object
+					else                                 sMode = -1;
+				}
+				else                                     sMode = -1;
+			}
+		} break;
+
+		case INSERTTEXT: {
+			if (x > p.x1 && x < p.x2) {
+				if (y > p.y1 && y < p.y2)            sMode = MOVE;     // inside the object
+				else                                 sMode = -1;
+			}
+			else                                     sMode = -1;
+		} break;
+
+		default: { // Ellipse & Rectangle
+			if (x >= p.x1 - 6 && x <= p.x1) {
+				if (y >= p.y1 - 6 && y <= p.y1)      sMode = RESIZE_1; // top-left square
+				else if (y >= p.y2 && y <= p.y2 + 6) sMode = RESIZE_3; // bot-left square
+				else                                 sMode = -1;
+			}
+			else if (x >= p.x2 && x <= p.x2 + 6) {
+				if (y >= p.y1 - 6 && y <= p.y1)      sMode = RESIZE_2; // top-right square
+				else if (y >= p.y2 && y <= p.y2 + 6) sMode = RESIZE_4; // bot-right square
+				else                                 sMode = -1;
+			}
+			else if (x > p.x1 && x < p.x2) {
+				if (y > p.y1 && y < p.y2)            sMode = MOVE;     // inside the object
+				else                                 sMode = -1;
+			}
+			else                                     sMode = -1;
+
+		} break;
 	}
-	else if (x >= p.x2 && x <= p.x2 + 6) {
-		if (y >= p.y1 - 6 && y <= p.y1)      sMode = RESIZE_2; // top-right square
-		else if (y >= p.y2 && y <= p.y2 + 6) sMode = RESIZE_4; // bot-right square
-		else                                 sMode = -1;
-	}
-	else if (x > p.x1 && x < p.x2) {
-		if (y > p.y1 && y < p.y2)            sMode = MOVE;     // inside the object
-		else                                 sMode = -1;
-	}
-	else                                     sMode = -1;
 }

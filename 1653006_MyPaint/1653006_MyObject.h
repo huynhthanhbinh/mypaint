@@ -94,6 +94,6 @@ void deleteObject(HWND hwndMDIClient, int mode, int& i);
 void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, int i, int& prev_i, int& sMode);
 void paintRect(HWND hWnd, Position tpos, RECT& rect, int x);
 void drawFrame(HWND hWnd, CHILD_WND_DATA* data, int i);
-void sMode_convert(int& sMode, int x, int y, Position p);
+void sMode_convert(int& sMode, int x, int y, Position p, Object* obj);
 
 #endif // !_MY_OBJECT_H_
