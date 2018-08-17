@@ -28,10 +28,10 @@ void createToolbar(HWND hWnd, HWND& hToolBarWnd, bool& Toolbar_Exist)
 	{
 		// Zero-based Bitmap image, ID of command, Button state, Button style, 
 		// ...App data, Zero-based string (Button's label)
-	{ STD_FILENEW,	ID_FILE_NEW, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"New (Ctrl + N)"},
-	{ STD_FILEOPEN,	ID_FILE_OPEN, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Open (Ctrl + O)" },
-	{ STD_FILESAVE,	ID_FILE_SAVE, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Save (Ctrl + S)" },
-	{ STD_PRINT,NULL/*ID_FILE_PRINT*/,	TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Print (Ctrl + P)" }
+	{ STD_FILENEW,	ID_FILE_NEW,    TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"New (Ctrl + N)"},
+	{ STD_FILEOPEN,	ID_FILE_OPEN,   TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Open (Ctrl + O)" },
+	{ STD_FILESAVE,	ID_FILE_SAVE,   TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Save (Ctrl + S)" },
+	{ STD_PRINT,    ID_FILE_PRINT,	TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Print (Ctrl + P)" }
 	};
 
 	// create a toolbar
@@ -358,12 +358,14 @@ void enableCommand(HWND hFrameWnd, HWND hToolBarWnd, int mode) {
 	CheckMenuWindow(hFrameWnd, ID_WINDOW_CASCADE);
 	CheckToolbarWindow(hToolBarWnd, ID_WINDOW_CASCADE);
 
-	SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_CUT, TBSTATE_ENABLED);
-	SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_COPY, TBSTATE_ENABLED);
-	SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_PASTE, TBSTATE_ENABLED);
-	SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_DELETE, TBSTATE_ENABLED);
-	SendMessage(hToolBarWnd, TB_SETSTATE, ID_DRAW_COLOR, TBSTATE_ENABLED);
-	SendMessage(hToolBarWnd, TB_SETSTATE, ID_DRAW_FONT, TBSTATE_ENABLED);
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_FILE_PRINT     , TBSTATE_ENABLED);
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_FILE_SAVE      , TBSTATE_ENABLED);
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_CUT       , TBSTATE_ENABLED);
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_COPY      , TBSTATE_ENABLED);
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_PASTE     , TBSTATE_ENABLED);
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_DELETE    , TBSTATE_ENABLED);
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_DRAW_COLOR     , TBSTATE_ENABLED);
+	SendMessage(hToolBarWnd, TB_SETSTATE, ID_DRAW_FONT      , TBSTATE_ENABLED);
 	SendMessage(hToolBarWnd, TB_SETSTATE, ID_WINDOW_CLOSEALL, TBSTATE_ENABLED);
 }
 void disableCommand(HWND hFrameWnd, HWND hToolBarWnd) {
@@ -373,6 +375,6 @@ void disableCommand(HWND hFrameWnd, HWND hToolBarWnd) {
 	EnableMenuItem(hPopup, menuPos_Window, MF_GRAYED | MF_BYPOSITION);
 	DrawMenuBar(hFrameWnd);
 
-	for (UINT i = ID_EDIT_CUT; i <= ID_WINDOW_CLOSEALL; ++i)
+	for (UINT i = ID_FILE_SAVE; i <= ID_WINDOW_CLOSEALL; ++i)
 		SendMessage(hToolBarWnd, TB_SETSTATE, i, TBSTATE_INDETERMINATE);
 }
