@@ -1,7 +1,0 @@
-1653006
-Huynh Thanh Binh
-
-1. Problem Keo chuot qua nhieu window ???
-2. Problem Open .drw by double click in MyPaint  ???
-3. How to open .drw file in file explorer ???
-4. Hide group of toolbar button

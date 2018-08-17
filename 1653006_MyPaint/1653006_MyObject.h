@@ -76,10 +76,6 @@ bool drawObject(HWND hWnd, LPARAM lParam, HDC dc, Position pos, int mode, CHILD_
 bool checkSamePoint(Position pos);
 bool clearObjArray(HWND hWndClient);
 
-void OnOpen(HWND hWnd);
-void OnSave(HWND hWnd);
-void saveFile(vector <Object*>  arrObject, LPTSTR szFile);
-void openFile(vector <Object*>& arrObject, LPTSTR szFile);
 
 double getDistance(POINT pt1, POINT pt2);
 bool isObject(Position pos, LPARAM lParam, int type);
@@ -95,5 +91,21 @@ void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, i
 void paintRect(HWND hWnd, Position tpos, RECT& rect, int x);
 void drawFrame(HWND hWnd, CHILD_WND_DATA* data, int i);
 void sMode_convert(int& sMode, int x, int y, Position p, Object* obj);
+
+
+void saveBitmap(HWND hWnd, LPWSTR szFile);
+void OnChooseColors(HWND hWnd, HWND hwndMDIClient);
+void OnChooseFonts(HWND hWnd, HWND hwndMDIClient);
+
+
+void saveFile(vector <Object*>  arrObject, LPTSTR szFile);
+void openFile(vector <Object*>& arrObject, LPTSTR szFile);
+void OnSave(HWND hWnd, HWND hwndMDIClient);
+void OnOpen(HWND hWnd, HWND hwndMDIClient, WCHAR* szDrawTitle, WCHAR* szDrawWindowClass);
+
+
+void initChildWindow(HWND hWnd, int nType);
+void initFrameWindow(HWND hWnd, HWND& hFrameWnd, HWND& hwndMDIClient, HINSTANCE hInst);
+void onNewDrawWnd(HWND hWnd, HWND& hwndMDIClient, WCHAR* szDrawTitle, WCHAR* szDrawWindowClass);
 
 #endif // !_MY_OBJECT_H_

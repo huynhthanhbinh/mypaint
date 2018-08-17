@@ -788,3 +788,342 @@ void sMode_convert(int& sMode, int x, int y, Position p, Object* obj) {
 		} break;
 	}
 }
+
+
+void saveBitmap(HWND hWnd, LPWSTR szFile) {
+	// docs.microsoft.com/en-us/windows/desktop/gdi/capturing-an-image
+
+	HDC hdcScreen;
+	HDC hdcWindow;
+	HDC hdcMemDC = NULL;
+	HBITMAP hbmScreen = NULL;
+	BITMAP bmpScreen;
+
+	DWORD dwBmpSize;
+	DWORD dwSizeofDIB;
+	DWORD dwBytesWritten = 0;
+
+	HANDLE hFile;
+	HANDLE hDIB;
+	char *lpbitmap;
+
+	hdcScreen = GetDC(NULL);
+	hdcWindow = GetDC(hWnd);
+
+	// Create a compatible DC which is used in a BitBlt from the window DC
+	hdcMemDC = CreateCompatibleDC(hdcWindow);
+
+	// Get the client area for size calculation
+	RECT r;
+	GetClientRect(hWnd, &r);
+
+	SetStretchBltMode(hdcWindow, HALFTONE); //This is the best stretch mode
+
+											// Create a compatible bitmap from the Window DC
+	hbmScreen = CreateCompatibleBitmap(hdcWindow, r.right - r.left, r.bottom - r.top);
+
+	// Select the compatible bitmap into the compatible memory DC.
+	SelectObject(hdcMemDC, hbmScreen);
+
+	// Bit block transfer into our compatible memory DC.
+	BitBlt(hdcMemDC, 0, 0,
+		r.right - r.left, r.bottom - r.top,
+		hdcWindow, 0, 0, SRCCOPY);
+
+	// Get the BITMAP from the HBITMAP
+	GetObject(hbmScreen, sizeof(BITMAP), &bmpScreen);
+
+	BITMAPFILEHEADER   bmfHeader;
+	BITMAPINFOHEADER   bi;
+
+	bi.biSize = sizeof(BITMAPINFOHEADER);
+	bi.biWidth = bmpScreen.bmWidth;
+	bi.biHeight = bmpScreen.bmHeight;
+	bi.biPlanes = 1;
+	bi.biBitCount = 32;
+	bi.biCompression = BI_RGB;
+	bi.biSizeImage = 0;
+	bi.biXPelsPerMeter = 0;
+	bi.biYPelsPerMeter = 0;
+	bi.biClrUsed = 0;
+	bi.biClrImportant = 0;
+
+	dwBmpSize = ((bmpScreen.bmWidth * bi.biBitCount + 31) / 32) * 4 * bmpScreen.bmHeight;
+
+	hDIB = GlobalAlloc(GHND, dwBmpSize);
+	lpbitmap = (char *)GlobalLock(hDIB);
+
+	// Gets the "bits" from the bitmap and copies them into a buffer 
+	// which is pointed to by lpbitmap.
+	GetDIBits(hdcWindow, hbmScreen, 0,
+		(UINT)bmpScreen.bmHeight,
+		lpbitmap, (BITMAPINFO *)&bi, DIB_RGB_COLORS);
+
+	// A file is created, this is where we will save the screen capture.
+	hFile = CreateFile(szFile,
+		GENERIC_WRITE,
+		0,
+		NULL,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL, NULL);
+
+	// Add the size of the headers to the size of the bitmap to get the total file size
+	dwSizeofDIB = dwBmpSize + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+
+	bmfHeader.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) + (DWORD)sizeof(BITMAPINFOHEADER);
+	bmfHeader.bfSize = dwSizeofDIB;
+	bmfHeader.bfType = 0x4D42; //BM   
+
+	WriteFile(hFile, (LPSTR)&bmfHeader, sizeof(BITMAPFILEHEADER), &dwBytesWritten, NULL);
+	WriteFile(hFile, (LPSTR)&bi, sizeof(BITMAPINFOHEADER), &dwBytesWritten, NULL);
+	WriteFile(hFile, (LPSTR)lpbitmap, dwBmpSize, &dwBytesWritten, NULL);
+
+	GlobalUnlock(hDIB);
+	GlobalFree(hDIB);
+	CloseHandle(hFile);
+
+
+	DeleteObject(hbmScreen);
+	DeleteObject(hdcMemDC);
+	ReleaseDC(NULL, hdcScreen);
+	ReleaseDC(hWnd, hdcWindow);
+}
+void saveFile(vector <Object*>  arrObject, LPTSTR szFile) {
+	fstream f;
+	f.open(szFile, ios::trunc | ios::binary | ios::out);
+	if (f.is_open()) {
+		int arr_size = (int)arrObject.size();
+		f.write((char*)&arr_size, sizeof(int));
+		for (unsigned int i = 0; i < arrObject.size(); i++) {
+			arrObject[i]->save(f);
+		}
+	} f.close();
+}
+void openFile(vector <Object*>& arrObject, LPTSTR szFile) {
+	fstream f;
+	f.open(szFile, ios::binary | ios::in);
+	if (f.is_open()) {
+		int arr_size;
+		WCHAR s[MAX_LOADSTRING];
+		f.read((char*)&arr_size, sizeof(int));
+		for (int i = 0; i < arr_size; i++) {
+			Object * obj;
+			int type;
+			f.read((char*)&type, sizeof(int));
+
+			switch (type) {
+			case LINE:
+				obj = new MyLine;
+				obj->type = type;
+				obj->open(f);
+				arrObject.push_back(obj);
+				wsprintf(s, L"\nType = %d, x1 = %d, y1 = %d, x2 = %d, y2 = %d, R = %d, G = %d, B = %d\n",
+					obj->type, obj->pos.x1, obj->pos.y1, obj->pos.x2, obj->pos.y2,
+					GetRValue(obj->rgbColor), GetGValue(obj->rgbColor), GetBValue(obj->rgbColor));
+				OutputDebugString(s);
+				break;
+			case RECTANGLE:
+				obj = new MyRectangle;
+				obj->type = type;
+				obj->open(f);
+				arrObject.push_back(obj);
+				wsprintf(s, L"\nType = %d, x1 = %d, y1 = %d, x2 = %d, y2 = %d, R = %d, G = %d, B = %d\n",
+					obj->type, obj->pos.x1, obj->pos.y1, obj->pos.x2, obj->pos.y2,
+					GetRValue(obj->rgbColor), GetGValue(obj->rgbColor), GetBValue(obj->rgbColor));
+				OutputDebugString(s);
+				break;
+			case ELLIPSE:
+				obj = new MyEllipse;
+				obj->type = type;
+				obj->open(f);
+				arrObject.push_back(obj);
+				wsprintf(s, L"\nType = %d, x1 = %d, y1 = %d, x2 = %d, y2 = %d, R = %d, G = %d, B = %d\n",
+					obj->type, obj->pos.x1, obj->pos.y1, obj->pos.x2, obj->pos.y2,
+					GetRValue(obj->rgbColor), GetGValue(obj->rgbColor), GetBValue(obj->rgbColor));
+				OutputDebugString(s);
+				break;
+			case INSERTTEXT:
+				obj = new MyText;
+				obj->type = type;
+				obj->open(f);
+				arrObject.push_back(obj);
+				break;
+			}
+		}
+		wsprintf(s, L"\nCREATED: Numbers of object: %d\n\n\n", arrObject.size());
+		OutputDebugString(s);
+	} f.close();
+}
+void OnOpen(HWND hWnd, HWND hwndMDIClient, WCHAR* szDrawTitle, WCHAR* szDrawWindowClass) {
+	OPENFILENAME ofn; // CTDL dùng cho dialog open
+	TCHAR szFile[256];
+	TCHAR szFilter[] = TEXT("Draw file (.drw)\0 * .drw\0");
+
+	//HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
+
+	szFile[0] = '\0';
+	// Khởi tạo struct
+	ZeroMemory(&ofn, sizeof(OPENFILENAME));
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hWnd; // handle của window cha
+	ofn.lpstrFilter = szFilter;
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFile = szFile; // chuỗi tên file trả về
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+	if (GetOpenFileName(&ofn)) {
+		//... // xử lý mở file
+		vector <Object*> arrObject;
+		WCHAR FileTitle[MAX_LOADSTRING];
+		openFile(arrObject, ofn.lpstrFile);
+		onNewDrawWnd(hWnd, hwndMDIClient, szDrawTitle, szDrawWindowClass);
+		GetFileTitle(ofn.lpstrFile, FileTitle, (WORD)wcslen(FileTitle));
+		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
+		SetWindowText(current, FileTitle);
+		CHILD_WND_DATA * wndData = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
+		wndData->arrObject = arrObject;
+		arrObject.clear();
+	}
+	else
+		;//ErrorHandler();
+}
+void OnSave(HWND hWnd, HWND hwndMDIClient) {
+	OPENFILENAME ofn; // CTDL dùng cho dialog save
+	TCHAR szFile[256];
+	TCHAR szFilter[] = TEXT("Draw file (.drw)\0 * .drw\0Bitmap (.bmp)\0 * .bmp\0");
+
+	HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
+
+	ZeroMemory(&ofn, sizeof(OPENFILENAME));
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hwndOwner = hWnd; // handle của window cha
+	ofn.lpstrFilter = szFilter;
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFile = szFile; // chuỗi tên file trả về
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_EXPLORER | OFN_HIDEREADONLY;
+	ofn.lpstrDefExt = L"drw";
+	GetWindowText(current, szFile, MAX_LOADSTRING); // Get title of current child window
+													//int x = GetFileTitle(ofn.lpstrFile, ofn.lpstrFileTitle, sizeof(ofn.lpstrFile));
+	if (GetSaveFileName(&ofn)) {
+		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
+
+		if (wcsstr(ofn.lpstrFile, L".drw"))
+			saveFile(data->arrObject, ofn.lpstrFile);
+		else if (wcsstr(ofn.lpstrFile, L".bmp")) {
+			saveBitmap(current, ofn.lpstrFile);
+		}
+
+		MessageBox(hWnd, L"Successfully Save File !", L"SAVE FILE NOTICE", MB_OK);
+	}
+	else;//ErrorHandler();
+}
+void OnChooseColors(HWND hWnd, HWND hwndMDIClient) {
+	HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
+	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
+
+	CHOOSECOLOR cc; // CTDL dùng cho dialog ChooseColor
+	COLORREF acrCustClr[16]; // Các màu do user định nghĩa
+	COLORREF rgbCurrent = RGB(0, 0, 0); // màu được chọn default
+										// Khởi tạo struct
+	ZeroMemory(&cc, sizeof(CHOOSECOLOR));
+	cc.lStructSize = sizeof(CHOOSECOLOR);
+	cc.hwndOwner = hWnd; // handle của window cha
+	cc.lpCustColors = (LPDWORD)acrCustClr;
+	if (data != NULL)
+		cc.rgbResult = data->rgbColor; // trả về màu được chọn
+	cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+	if (ChooseColor(&cc))
+	{
+		if (data != NULL) {
+			//// xử lý màu được chọn, vd. tạo brush
+			data->rgbColor = cc.rgbResult;
+		}
+	}
+	else;//ErrorHandler();
+}
+void OnChooseFonts(HWND hWnd, HWND hwndMDIClient) {
+	HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
+	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
+
+
+	CHOOSEFONT cf;
+
+	//Khởi tạo struct
+	ZeroMemory(&cf, sizeof(CHOOSEFONT));
+	cf.lStructSize = sizeof(CHOOSEFONT);
+	cf.hwndOwner = hWnd; // handle của window cha
+
+	if (data != NULL) {
+		cf.rgbColors = data->rgbColor;
+		cf.lpLogFont = &data->logFont;
+	}
+
+	cf.Flags = CF_SCREENFONTS | CF_EFFECTS;
+	if (ChooseFont(&cf)) {
+		if (data != NULL) {
+			data->rgbColor = cf.rgbColors;
+		}
+	}
+	else
+		;//ErrorHandler();
+}
+
+
+
+void initFrameWindow(HWND hWnd, HWND& hFrameWnd, HWND& hwndMDIClient, HINSTANCE hInst) {
+	hFrameWnd = hWnd;
+	// create the MDI Client Window
+	CLIENTCREATESTRUCT ccs;
+	ccs.hWindowMenu = GetSubMenu(GetMenu(hWnd), menuPos_Window);
+	ccs.idFirstChild = 50000;
+
+	hwndMDIClient = CreateWindow(
+		L"MDICLIENT",
+		(LPCTSTR)NULL,
+		WS_CHILD | WS_CLIPCHILDREN,
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		hWnd,
+		(HMENU)NULL,
+		hInst,
+		(LPVOID)&ccs);
+
+	ShowWindow(hwndMDIClient, SW_SHOW);
+}
+void initChildWindow(HWND hWnd, int nType) {
+	CHILD_WND_DATA *wndData;
+	ZeroMemory(&wndData, sizeof(wndData));
+	wndData = (CHILD_WND_DATA*)
+		VirtualAlloc(NULL, sizeof(CHILD_WND_DATA), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+	//wndData = new CHILD_WND_DATA;
+	wndData->wndType = nType;
+	wndData->hWnd = hWnd;
+	wndData->rgbColor = RGB(0, 0, 0);
+
+	WCHAR s[100]; wsprintf(s, L"\n\n\nHWND = %d\n\n\n", wndData->hWnd); OutputDebugString(s);
+
+	SetLastError(0);
+	if (SetWindowLongPtr(hWnd, 0, (LONG_PTR)wndData) == 0)
+
+		if (GetLastError() != 0)
+		{
+			//int a = 0;
+		}
+}
+void onNewDrawWnd(HWND hWnd, HWND& hwndMDIClient, WCHAR* szDrawTitle, WCHAR* szDrawWindowClass) {
+	static int i = 1;
+	wsprintf(szDrawTitle, L"Noname-%d.drw", i);
+	MDICREATESTRUCT mdiCreate;
+	ZeroMemory(&mdiCreate, sizeof(MDICREATESTRUCT));
+	mdiCreate.szClass = szDrawWindowClass;
+	mdiCreate.szTitle = szDrawTitle;
+	mdiCreate.x = CW_USEDEFAULT;
+	mdiCreate.y = CW_USEDEFAULT;
+	mdiCreate.cx = 800;
+	mdiCreate.cy = 600;
+	mdiCreate.style = 0;
+	mdiCreate.lParam = NULL;
+	SendMessage(hwndMDIClient, WM_MDICREATE, 0, (LPARAM)(LPMDICREATESTRUCT)&mdiCreate);
+
+	i++;
+}
