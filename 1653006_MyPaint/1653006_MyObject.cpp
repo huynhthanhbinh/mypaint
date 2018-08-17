@@ -172,14 +172,35 @@ void MyText::copy(HWND hWnd) {
 void OnPaint(HWND hWnd) {
 	PAINTSTRUCT ps;
 	HDC hdc = BeginPaint(hWnd, &ps);
+	HDC backbuffDC = CreateCompatibleDC(hdc);
+
+	RECT rect;
+	GetClientRect(hWnd, &rect);
+	int width = rect.right;
+	int height = rect.bottom;
+
+	HBITMAP backbuffer = CreateCompatibleBitmap(hdc, width, height);
+	HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
+
+	int savedDC = SaveDC(backbuffDC);
+	SelectObject(backbuffDC, backbuffer);
+	FillRect(backbuffDC, &rect, hBrush);
+
 
 	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
 	for (unsigned int i = 0; i < data->arrObject.size(); i++) {
-		data->arrObject[i]->draw(hWnd, hdc);
+		data->arrObject[i]->draw(hWnd, backbuffDC);
 	}
 
-	ReleaseDC(hWnd, hdc);
+	BitBlt(hdc, 0, 0, width, height, backbuffDC, 0, 0, SRCCOPY);
+	RestoreDC(backbuffDC, savedDC);
+
+	DeleteObject(backbuffer);
+	DeleteObject(hBrush);
+	DeleteDC(backbuffDC);
+
 	EndPaint(hWnd, &ps);
+	ReleaseDC(hWnd, hdc);
 }
 void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode, bool& mouse_down) {
 	ClipCursor(NULL); //release the mouse cursor
@@ -567,7 +588,6 @@ void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, i
 			if (prev_i == -1) xpos = obj->pos; // 1st click select object --> then move
 
 			RECT rect;
-			paintRect(hWnd, p, rect, 10);
 
 			if (sMode == MOVE) {
 				pos.x2 = x;
@@ -581,13 +601,14 @@ void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, i
 				obj->pos.y1 = xpos.y1 + dy;
 				obj->pos.y2 = xpos.y2 + dy;
 
-				paintRect(hWnd, p, rect, 10);
+				paintRect(hWnd, p, rect, 20);
 				prev_i = i; 
 				return;
 			}
 
 			if (obj->type == INSERTTEXT) return; // resize not use with object TEXT
 
+			paintRect(hWnd, p, rect, 20);
 			static POINT center; // center point to compare and resize !!!! 
 
 			switch (sMode) {
