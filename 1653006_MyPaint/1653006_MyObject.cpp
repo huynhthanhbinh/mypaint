@@ -631,16 +631,17 @@ void cutObject(HWND hwndMDIClient, int mode, int& i) {
 	copyObject(hwndMDIClient, mode, i);
 	deleteObject(hwndMDIClient, mode, i);
 }
-void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, int i, int& prev_i, int& sMode) {
+void mousemoveObject(HWND hWnd, HWND activated, LPARAM lParam, Position& pos, bool mouse_down, int i, int& prev_i, int& sMode) {
 	// prev_i = -1 when lbutton is up !!!
 	if (i != -1) {
+		if (hWnd != activated) return; // vital - very important !!! 
+		// ex: copy object from activated to another child window !! 
+		
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
 
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
-
 		if (data == NULL) return;
-		if (data->arrObject.size() - 1 < i) return;
 
 		Object* obj = data->arrObject[i];
 
