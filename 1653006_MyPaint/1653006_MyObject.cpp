@@ -485,16 +485,25 @@ void deleteObject(HWND hwndMDIClient, int mode, int& i) {
 		InvalidateRect(current, NULL, TRUE);
 		i = -1;
 
-		for (unsigned int j = 0; j < data->arrUndo.size(); j++) {
-			if (data->arrUndo[i].i > i) data->arrUndo[i].i--;
+		HCURSOR arrow = LoadCursor(NULL, IDC_ARROW);
+		SetCursor(arrow);
+		DestroyCursor(arrow);
+
+		/*for (unsigned int j = 0; j < data->arrUndo.size(); j++) {
+			if (data->arrUndo[j].i > i) data->arrUndo[j].i--;
 		}
 		for (unsigned int j = 0; j < data->arrRedo.size(); j++) {
-			if (data->arrRedo[i].i > i) data->arrRedo[i].i--;
-		}
+			if (data->arrRedo[j].i > i) data->arrRedo[j].i--;
+		}*/
 	}
 }
 void copyObject(HWND hwndMDIClient, int mode, int i) {
 	if (mode == SELECT && i != -1) {
+
+		WCHAR x[128];
+		wsprintf(x, L"\n\nCopy: i = %d\n\n", i);
+		OutputDebugString(x);
+
 		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
 		if (data != NULL) data->arrObject[i]->copy(current);
@@ -623,7 +632,16 @@ void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, i
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
 
+		WCHAR xx[128];
+		wsprintf(xx, L"\n\nmouse move object: i = %d\n\n", i);
+		OutputDebugString(xx);
+
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
+		if (data == NULL) {
+			OutputDebugString(L"\nData = NULL !!!!!!!!\n");
+			return;
+		}
+
 		Object* obj = data->arrObject[i];
 
 		static Position xpos;
