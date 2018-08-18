@@ -1047,12 +1047,30 @@ void checkUndoRedo(HWND hFrameWnd, HWND hWnd, HWND hToolBarWnd) {
 
 
 void saveBitmap(HWND hWnd, LPWSTR szFile) {
-	// docs.microsoft.com/en-us/windows/desktop/gdi/capturing-an-image
+	HDC hdc = GetDC(hWnd);
+	HDC backbuffDC = CreateCompatibleDC(hdc);
 
-	HDC hdcScreen;
-	HDC hdcWindow;
-	HDC hdcMemDC = NULL;
-	HBITMAP hbmScreen = NULL;
+	RECT rect;
+	GetClientRect(hWnd, &rect);
+	int width = rect.right;
+	int height = rect.bottom;
+
+	HBITMAP backbuffer = CreateCompatibleBitmap(hdc, width, height);
+	HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
+
+	int savedDC = SaveDC(backbuffDC);
+	SelectObject(backbuffDC, backbuffer);
+	FillRect(backbuffDC, &rect, hBrush);
+
+
+	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
+	for (unsigned int i = 0; i < data->arrObject.size(); i++) {
+		data->arrObject[i]->draw(hWnd, backbuffDC);
+	}
+
+	BitBlt(hdc, 0, 0, width, height, backbuffDC, 0, 0, SRCCOPY);
+	RestoreDC(backbuffDC, savedDC);
+
 	BITMAP bmpScreen;
 
 	DWORD dwBmpSize;
@@ -1063,31 +1081,9 @@ void saveBitmap(HWND hWnd, LPWSTR szFile) {
 	HANDLE hDIB;
 	char *lpbitmap;
 
-	hdcScreen = GetDC(NULL);
-	hdcWindow = GetDC(hWnd);
+	SetStretchBltMode(hdc, HALFTONE); //This is the best stretch mode
 
-	// Create a compatible DC which is used in a BitBlt from the window DC
-	hdcMemDC = CreateCompatibleDC(hdcWindow);
-
-	// Get the client area for size calculation
-	RECT r;
-	GetClientRect(hWnd, &r);
-
-	SetStretchBltMode(hdcWindow, HALFTONE); //This is the best stretch mode
-
-											// Create a compatible bitmap from the Window DC
-	hbmScreen = CreateCompatibleBitmap(hdcWindow, r.right - r.left, r.bottom - r.top);
-
-	// Select the compatible bitmap into the compatible memory DC.
-	SelectObject(hdcMemDC, hbmScreen);
-
-	// Bit block transfer into our compatible memory DC.
-	BitBlt(hdcMemDC, 0, 0,
-		r.right - r.left, r.bottom - r.top,
-		hdcWindow, 0, 0, SRCCOPY);
-
-	// Get the BITMAP from the HBITMAP
-	GetObject(hbmScreen, sizeof(BITMAP), &bmpScreen);
+	GetObject(backbuffer, sizeof(BITMAP), &bmpScreen);
 
 	BITMAPFILEHEADER   bmfHeader;
 	BITMAPINFOHEADER   bi;
@@ -1109,13 +1105,11 @@ void saveBitmap(HWND hWnd, LPWSTR szFile) {
 	hDIB = GlobalAlloc(GHND, dwBmpSize);
 	lpbitmap = (char *)GlobalLock(hDIB);
 
-	// Gets the "bits" from the bitmap and copies them into a buffer 
-	// which is pointed to by lpbitmap.
-	GetDIBits(hdcWindow, hbmScreen, 0,
+	GetDIBits(hdc, backbuffer, 0,
 		(UINT)bmpScreen.bmHeight,
 		lpbitmap, (BITMAPINFO *)&bi, DIB_RGB_COLORS);
 
-	// A file is created, this is where we will save the screen capture.
+
 	hFile = CreateFile(szFile,
 		GENERIC_WRITE,
 		0,
@@ -1123,7 +1117,6 @@ void saveBitmap(HWND hWnd, LPWSTR szFile) {
 		CREATE_ALWAYS,
 		FILE_ATTRIBUTE_NORMAL, NULL);
 
-	// Add the size of the headers to the size of the bitmap to get the total file size
 	dwSizeofDIB = dwBmpSize + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
 
 	bmfHeader.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) + (DWORD)sizeof(BITMAPINFOHEADER);
@@ -1138,11 +1131,10 @@ void saveBitmap(HWND hWnd, LPWSTR szFile) {
 	GlobalFree(hDIB);
 	CloseHandle(hFile);
 
-
-	DeleteObject(hbmScreen);
-	DeleteObject(hdcMemDC);
-	ReleaseDC(NULL, hdcScreen);
-	ReleaseDC(hWnd, hdcWindow);
+	DeleteObject(backbuffer);
+	DeleteObject(hBrush);
+	DeleteDC(backbuffDC);
+	ReleaseDC(hWnd, hdc);
 }
 void saveFile(vector <Object*>  arrObject, LPTSTR szFile) {
 	fstream f;
