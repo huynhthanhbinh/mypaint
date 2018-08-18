@@ -216,6 +216,11 @@ void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode
 			l->pos = pos;
 			l->type = LINE;
 			l->rgbColor = data->rgbColor;
+
+			Work redo;
+			createRedo(redo, l, data);
+			data->arrRedo.push_back(redo);
+
 			data->arrObject.push_back(l);
 		}
 		break;
@@ -225,6 +230,11 @@ void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode
 			r->pos = pos;
 			r->type = RECTANGLE;
 			r->rgbColor = data->rgbColor;
+
+			Work redo;
+			createRedo(redo, r, data);
+			data->arrRedo.push_back(redo);
+
 			data->arrObject.push_back(r);
 		}
 		break;
@@ -234,6 +244,11 @@ void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode
 			e->pos = pos;
 			e->type = ELLIPSE;
 			e->rgbColor = data->rgbColor;
+
+			Work redo;
+			createRedo(redo, e, data);
+			data->arrRedo.push_back(redo);
+
 			data->arrObject.push_back(e);
 		}
 		break;
@@ -337,7 +352,9 @@ bool checkSamePoint(Position pos) { // leak memory !!!
 }
 bool clearObjArray(HWND hWndClient) {
 	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWndClient, 0);
-	data->arrObject.clear();
+	if (!data->arrObject.empty()) data->arrObject.clear();
+	if (!data->arrUndo.empty())   data->arrUndo.clear();
+	if (!data->arrRedo.empty())   data->arrRedo.clear();
 	return true;
 }
 void onLButtonDownText(HWND hWnd, HWND& hEdit, Position& pos) {
@@ -365,6 +382,12 @@ void onLButtonDownText(HWND hWnd, HWND& hEdit, Position& pos) {
 			t->rgbColor = data->rgbColor;
 			t->logFont = data->logFont;
 			t->pos = pos;
+
+
+			Work redo;
+			createRedo(redo, t, data);
+			data->arrRedo.push_back(redo);
+
 			data->arrObject.push_back(t);
 
 			RECT r; GetWindowRect(hEdit, &r);
@@ -452,6 +475,8 @@ void deleteObject(HWND hwndMDIClient, int mode, int& i) {
 		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
 
+		if (data == NULL) return;
+
 		for (unsigned int j = i; j < data->arrObject.size() - 1; j++) {
 			swap(data->arrObject[j], data->arrObject[j + 1]);
 		} delete data->arrObject[data->arrObject.size() - 1];
@@ -459,6 +484,13 @@ void deleteObject(HWND hwndMDIClient, int mode, int& i) {
 
 		InvalidateRect(current, NULL, TRUE);
 		i = -1;
+
+		for (unsigned int j = 0; j < data->arrUndo.size(); j++) {
+			if (data->arrUndo[i].i > i) data->arrUndo[i].i--;
+		}
+		for (unsigned int j = 0; j < data->arrRedo.size(); j++) {
+			if (data->arrRedo[i].i > i) data->arrRedo[i].i--;
+		}
 	}
 }
 void copyObject(HWND hwndMDIClient, int mode, int i) {
@@ -492,6 +524,10 @@ void pasteObject(HWND hwndMDIClient, int mode, int i) {
 			CopyMemory(l, p, sizeof(MyLine));
 			GlobalUnlock(hLine);
 
+			Work redo;
+			createRedo(redo, l, data);
+			data->arrRedo.push_back(redo);
+
 			data->arrObject.push_back(l);
 
 			InvalidateRect(current, NULL, TRUE); 
@@ -502,6 +538,10 @@ void pasteObject(HWND hwndMDIClient, int mode, int i) {
 			MyRectangle* r = new MyRectangle;
 			CopyMemory(r, p, sizeof(MyRectangle));
 			GlobalUnlock(hRectangle);
+
+			Work redo;
+			createRedo(redo, r, data);
+			data->arrRedo.push_back(redo);
 
 			data->arrObject.push_back(r);
 
@@ -514,6 +554,10 @@ void pasteObject(HWND hwndMDIClient, int mode, int i) {
 			CopyMemory(e, p, sizeof(MyEllipse));
 			GlobalUnlock(hEllipse);
 
+			Work redo;
+			createRedo(redo, e, data);
+			data->arrRedo.push_back(redo);
+
 			data->arrObject.push_back(e);
 
 			InvalidateRect(current, NULL, TRUE); 
@@ -524,6 +568,10 @@ void pasteObject(HWND hwndMDIClient, int mode, int i) {
 			MyText* t = new MyText;
 			CopyMemory(t, p, sizeof(MyText));
 			GlobalUnlock(hText);
+
+			Work redo;
+			createRedo(redo, t, data);
+			data->arrRedo.push_back(redo);
 
 			data->arrObject.push_back(t);
 
@@ -550,6 +598,10 @@ void pasteObject(HWND hwndMDIClient, int mode, int i) {
 			t->logFont = data->logFont;
 			t->type = INSERTTEXT;
 			GlobalUnlock(hCFText);
+
+			Work redo;
+			createRedo(redo, t, data);
+			data->arrRedo.push_back(redo);
 
 			data->arrObject.push_back(t);
 
@@ -786,6 +838,116 @@ void sMode_convert(int& sMode, int x, int y, Position p, Object* obj) {
 			else                                     sMode = -1;
 
 		} break;
+	}
+}
+
+
+void createRedo(Work& redo, Object* obj, CHILD_WND_DATA* data) {
+	redo.id = INSERT;
+	redo.i = data->arrObject.size();
+
+	switch (obj->type) {
+	case LINE:       redo.obj = obj;      break;
+	case ELLIPSE:    redo.obj = obj;      break;
+	case RECTANGLE:  redo.obj = obj;      break;
+	case INSERTTEXT: redo.obj = obj;      break;
+	} 
+
+	if (!data->arrUndo.empty()) data->arrUndo.clear();
+}
+void doUndo(HWND hwndMDIClient) {
+	HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
+	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
+	if (data != NULL) {
+		if (data->arrRedo.size() > 0) {
+			Work undo = data->arrRedo.back();
+
+			switch (undo.id) {
+
+			case INSERT: { // -> remove object 
+				data->arrObject.pop_back();
+				undo.id = DELETE;
+			} break;
+
+			case DELETE: { // -> insert object
+				Object* xObj = NULL;
+				xObj = undo.obj;
+				data->arrObject.push_back(xObj);
+				undo.id = INSERT;
+			} break;
+
+			case CHANGE: { // -> return to previous state
+				swap(undo.obj->pos, data->arrObject[undo.i]->pos); // chuyen trang thai
+			} break;
+
+			}
+
+			data->arrUndo.push_back(undo);
+			data->arrRedo.pop_back();
+			InvalidateRect(current, NULL, TRUE);
+		}
+	}
+}
+void doRedo(HWND hwndMDIClient) {
+	HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
+	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
+	if (data != NULL) {
+		if (data->arrUndo.size() > 0) {
+			Work redo = data->arrUndo.back();
+
+			switch (redo.id) {
+
+			case INSERT: { // -> remove object 
+				data->arrObject.pop_back();
+				redo.id = DELETE;
+			} break;
+
+			case DELETE: { // -> insert object
+				Object* xObj = NULL;
+				xObj = redo.obj;
+				data->arrObject.push_back(xObj);
+				redo.id = INSERT;
+			} break;
+
+			case CHANGE: { // -> return to previous state
+				swap(redo.obj->pos, data->arrObject[redo.i]->pos); // chuyen trang thai
+			} break;
+
+			}
+
+			data->arrRedo.push_back(redo);
+			data->arrUndo.pop_back();
+			InvalidateRect(current, NULL, TRUE);
+		}
+	}
+}
+
+void checkUndoRedo(HWND hFrameWnd, HWND hWnd, HWND hToolBarWnd) {
+	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
+	HMENU hMenu = GetSubMenu(GetMenu(hFrameWnd), menuPos_Edit);
+
+	WCHAR x[128];
+	wsprintf(x, L"\n\narrUndo.size:  %d\narrRedo.size(): %d\n\n", data->arrUndo.size() > 0, data->arrRedo.size());
+	OutputDebugString(x);
+
+	// UNDO
+	if (data->arrRedo.size() > 0) { // can be Undo !!!
+		SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_UNDO, TBSTATE_ENABLED);
+		EnableMenuItem(hMenu, ID_EDIT_UNDO, MF_ENABLED | MF_BYCOMMAND);
+	}
+	else {
+		SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_UNDO, TBSTATE_INDETERMINATE);
+		EnableMenuItem(hMenu, ID_EDIT_UNDO, MF_GRAYED | MF_BYCOMMAND);
+	}
+
+	// REDO
+	if (data->arrUndo.size() > 0) { // can be redo !!!
+		SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_REDO, TBSTATE_ENABLED);
+		EnableMenuItem(hMenu, ID_EDIT_REDO, MF_ENABLED | MF_BYCOMMAND);
+	}
+	else {
+		SendMessage(hToolBarWnd, TB_SETSTATE, ID_EDIT_REDO, TBSTATE_INDETERMINATE);
+		EnableMenuItem(hMenu, ID_EDIT_REDO, MF_GRAYED | MF_BYCOMMAND);
 	}
 }
 

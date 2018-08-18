@@ -24,6 +24,12 @@ public:
 	virtual void copy(HWND hWnd) = 0;
 };
 
+struct Work {
+	int id;
+	int i; // ith of object in arrObj
+	Object* obj = NULL;
+};
+
 struct CHILD_WND_DATA {
 	BYTE wndType;
 	HWND hWnd;
@@ -31,6 +37,8 @@ struct CHILD_WND_DATA {
 	LOGFONT logFont;
 
 	vector <Object*> arrObject;
+	vector <Work> arrUndo;
+	vector <Work> arrRedo;
 };
 
 class MyLine : public Object {
@@ -91,6 +99,12 @@ void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, i
 void paintRect(HWND hWnd, Position tpos, RECT& rect, int x);
 void drawFrame(HWND hWnd, CHILD_WND_DATA* data, int i);
 void sMode_convert(int& sMode, int x, int y, Position p, Object* obj);
+
+
+void doUndo(HWND hwndMDIClient);
+void doRedo(HWND hwndMDIClient);
+void createRedo(Work& undo, Object* obj, CHILD_WND_DATA* data);
+void checkUndoRedo(HWND hFrameWnd, HWND hWnd, HWND hToolBarWnd);
 
 
 void saveBitmap(HWND hWnd, LPWSTR szFile);
