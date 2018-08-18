@@ -623,6 +623,11 @@ void pasteObject(HWND hwndMDIClient, int mode, int i) {
 	}
 }
 void cutObject(HWND hwndMDIClient, int mode, int& i) {
+	
+	WCHAR x[128];
+	wsprintf(x, L"\n\nCut: i = %d\n\n", i);
+	OutputDebugString(x);
+
 	copyObject(hwndMDIClient, mode, i);
 	deleteObject(hwndMDIClient, mode, i);
 }
@@ -632,15 +637,10 @@ void mousemoveObject(HWND hWnd, LPARAM lParam, Position& pos, bool mouse_down, i
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
 
-		WCHAR xx[128];
-		wsprintf(xx, L"\n\nmouse move object: i = %d\n\n", i);
-		OutputDebugString(xx);
-
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
-		if (data == NULL) {
-			OutputDebugString(L"\nData = NULL !!!!!!!!\n");
-			return;
-		}
+
+		if (data == NULL) return;
+		if (data->arrObject.size() - 1 < i) return;
 
 		Object* obj = data->arrObject[i];
 
