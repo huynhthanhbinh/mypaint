@@ -477,9 +477,16 @@ void deleteObject(HWND hwndMDIClient, int mode, int& i) {
 
 		if (data == NULL) return;
 
+		Work redo;
+		redo.id = DELETE;
+
 		for (unsigned int j = i; j < data->arrObject.size() - 1; j++) {
 			swap(data->arrObject[j], data->arrObject[j + 1]);
-		} delete data->arrObject[data->arrObject.size() - 1];
+		} 
+		
+		swap(data->arrObject[data->arrObject.size() - 1], redo.obj);
+		data->arrRedo.push_back(redo);
+
 		data->arrObject.pop_back();
 
 		InvalidateRect(current, NULL, TRUE);
@@ -641,7 +648,15 @@ void mousemoveObject(HWND hWnd, HWND activated, LPARAM lParam, Position& pos, bo
 		int y = HIWORD(lParam);
 
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
-		if (data == NULL) return;
+		if (data == NULL || !(data->arrObject.size() > 0)) { 
+			sMode = -1; 
+			return; 
+		}
+
+		WCHAR xx[128];
+		wsprintf(xx, L"\nhwnd = %d, activated = %d, vector size = %d, i = %d\n", 
+			hWnd, activated, data->arrObject.size(), i);
+		OutputDebugString(xx);
 
 		Object* obj = data->arrObject[i];
 
@@ -886,6 +901,10 @@ void doUndo(HWND hwndMDIClient) {
 			case INSERT: { // -> remove object 
 				data->arrObject.pop_back();
 				undo.id = DELETE;
+
+				HCURSOR arrow = LoadCursor(NULL, IDC_ARROW);
+				SetCursor(arrow);
+				DestroyCursor(arrow);
 			} break;
 
 			case DELETE: { // -> insert object
@@ -919,6 +938,10 @@ void doRedo(HWND hwndMDIClient) {
 			case INSERT: { // -> remove object 
 				data->arrObject.pop_back();
 				redo.id = DELETE;
+
+				HCURSOR arrow = LoadCursor(NULL, IDC_ARROW);
+				SetCursor(arrow);
+				DestroyCursor(arrow);
 			} break;
 
 			case DELETE: { // -> insert object
