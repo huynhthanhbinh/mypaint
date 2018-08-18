@@ -208,7 +208,7 @@ void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode
 	mouse_down = false;
 
 	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
-	WCHAR s[100];
+	//WCHAR s[100];
 	switch (mode) {
 	case LINE:
 		if (!checkSamePoint(pos)) {
@@ -275,7 +275,7 @@ void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode
 		ShowWindow(hEdit, SW_NORMAL);
 		} break;
 	}
-	wsprintf(s, L"\nNumbers of object: %d\n", data->arrObject.size()); OutputDebugString(s);
+	//wsprintf(s, L"\nNumbers of object: %d\n", data->arrObject.size()); OutputDebugString(s);
 	return;
 }
 void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mode, bool& mouse_down, int& i, int& sMode) {
@@ -451,9 +451,9 @@ void onSelect(HWND hWnd, LPARAM lParam, int& i, int& sMode)  {
 
 	for (i = data->arrObject.size() - 1; i >= 0; i--) {
 		if (isObject(data->arrObject[i]->pos, lParam, data->arrObject[i]->type)) {
-			WCHAR mess[MAX_LOADSTRING];
+			/*WCHAR mess[MAX_LOADSTRING];
 			wsprintf(mess, L"\nObject No. %d\n", i);
-			OutputDebugString(mess);
+			OutputDebugString(mess);*/
 
 			drawFrame(hWnd, data, i);
 			
@@ -500,9 +500,9 @@ void deleteObject(HWND hwndMDIClient, int mode, int& i) {
 void copyObject(HWND hwndMDIClient, int mode, int i) {
 	if (mode == SELECT && i != -1) {
 
-		WCHAR x[128];
+		/*WCHAR x[128];
 		wsprintf(x, L"\n\nCopy: i = %d\n\n", i);
-		OutputDebugString(x);
+		OutputDebugString(x);*/
 
 		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
@@ -624,9 +624,9 @@ void pasteObject(HWND hwndMDIClient, int mode, int i) {
 }
 void cutObject(HWND hwndMDIClient, int mode, int& i) {
 	
-	WCHAR x[128];
+	/*WCHAR x[128];
 	wsprintf(x, L"\n\nCut: i = %d\n\n", i);
-	OutputDebugString(x);
+	OutputDebugString(x);*/
 
 	copyObject(hwndMDIClient, mode, i);
 	deleteObject(hwndMDIClient, mode, i);
@@ -1020,9 +1020,9 @@ void checkUndoRedo(HWND hFrameWnd, HWND hWnd, HWND hToolBarWnd) {
 	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
 	HMENU hMenu = GetSubMenu(GetMenu(hFrameWnd), menuPos_Edit);
 
-	WCHAR x[128];
+	/*WCHAR x[128];
 	wsprintf(x, L"\n\narrUndo.size:  %d\narrRedo.size(): %d\n\n", data->arrUndo.size() > 0, data->arrRedo.size());
-	OutputDebugString(x);
+	OutputDebugString(x);*/
 
 	// UNDO
 	if (data->arrRedo.size() > 0) { // can be Undo !!!
@@ -1152,7 +1152,7 @@ void openFile(vector <Object*>& arrObject, LPTSTR szFile) {
 	f.open(szFile, ios::binary | ios::in);
 	if (f.is_open()) {
 		int arr_size;
-		WCHAR s[MAX_LOADSTRING];
+		//WCHAR s[MAX_LOADSTRING];
 		f.read((char*)&arr_size, sizeof(int));
 		for (int i = 0; i < arr_size; i++) {
 			Object * obj;
@@ -1165,30 +1165,30 @@ void openFile(vector <Object*>& arrObject, LPTSTR szFile) {
 				obj->type = type;
 				obj->open(f);
 				arrObject.push_back(obj);
-				wsprintf(s, L"\nType = %d, x1 = %d, y1 = %d, x2 = %d, y2 = %d, R = %d, G = %d, B = %d\n",
+				/*wsprintf(s, L"\nType = %d, x1 = %d, y1 = %d, x2 = %d, y2 = %d, R = %d, G = %d, B = %d\n",
 					obj->type, obj->pos.x1, obj->pos.y1, obj->pos.x2, obj->pos.y2,
 					GetRValue(obj->rgbColor), GetGValue(obj->rgbColor), GetBValue(obj->rgbColor));
-				OutputDebugString(s);
+				OutputDebugString(s);*/
 				break;
 			case RECTANGLE:
 				obj = new MyRectangle;
 				obj->type = type;
 				obj->open(f);
 				arrObject.push_back(obj);
-				wsprintf(s, L"\nType = %d, x1 = %d, y1 = %d, x2 = %d, y2 = %d, R = %d, G = %d, B = %d\n",
+				/*wsprintf(s, L"\nType = %d, x1 = %d, y1 = %d, x2 = %d, y2 = %d, R = %d, G = %d, B = %d\n",
 					obj->type, obj->pos.x1, obj->pos.y1, obj->pos.x2, obj->pos.y2,
 					GetRValue(obj->rgbColor), GetGValue(obj->rgbColor), GetBValue(obj->rgbColor));
-				OutputDebugString(s);
+				OutputDebugString(s);*/
 				break;
 			case ELLIPSE:
 				obj = new MyEllipse;
 				obj->type = type;
 				obj->open(f);
 				arrObject.push_back(obj);
-				wsprintf(s, L"\nType = %d, x1 = %d, y1 = %d, x2 = %d, y2 = %d, R = %d, G = %d, B = %d\n",
+				/*wsprintf(s, L"\nType = %d, x1 = %d, y1 = %d, x2 = %d, y2 = %d, R = %d, G = %d, B = %d\n",
 					obj->type, obj->pos.x1, obj->pos.y1, obj->pos.x2, obj->pos.y2,
 					GetRValue(obj->rgbColor), GetGValue(obj->rgbColor), GetBValue(obj->rgbColor));
-				OutputDebugString(s);
+				OutputDebugString(s);*/
 				break;
 			case INSERTTEXT:
 				obj = new MyText;
@@ -1198,8 +1198,8 @@ void openFile(vector <Object*>& arrObject, LPTSTR szFile) {
 				break;
 			}
 		}
-		wsprintf(s, L"\nCREATED: Numbers of object: %d\n\n\n", arrObject.size());
-		OutputDebugString(s);
+		/*wsprintf(s, L"\nCREATED: Numbers of object: %d\n\n\n", arrObject.size());
+		OutputDebugString(s);*/
 	} f.close();
 }
 void OnOpen(HWND hWnd, HWND hwndMDIClient, WCHAR* szDrawTitle, WCHAR* szDrawWindowClass) {
@@ -1348,7 +1348,7 @@ void initChildWindow(HWND hWnd, int nType) {
 	wndData->hWnd = hWnd;
 	wndData->rgbColor = RGB(0, 0, 0);
 
-	WCHAR s[100]; wsprintf(s, L"\n\n\nHWND = %d\n\n\n", wndData->hWnd); OutputDebugString(s);
+	/*WCHAR s[100]; wsprintf(s, L"\n\n\nHWND = %d\n\n\n", wndData->hWnd); OutputDebugString(s);*/
 
 	SetLastError(0);
 	if (SetWindowLongPtr(hWnd, 0, (LONG_PTR)wndData) == 0)
