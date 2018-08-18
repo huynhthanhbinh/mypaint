@@ -1,2 +1,10 @@
-﻿  1653006_MyPaint.cpp
+﻿  stdafx.cpp
+e:\1653006_mypaint\1653006_mypaint\stdafx.h(31): warning C4005: 'DELETE': macro redefinition
+  c:\program files (x86)\windows kits\10\include\10.0.17134.0\um\winnt.h(8881): note: see previous definition of 'DELETE'
+  1653006_MyObject.cpp
+e:\1653006_mypaint\1653006_mypaint\1653006_myobject.cpp(947): warning C4018: '<': signed/unsigned mismatch
+e:\1653006_mypaint\1653006_mypaint\1653006_myobject.cpp(996): warning C4018: '<': signed/unsigned mismatch
+  1653006_MyPaint.cpp
+  1653006_MyToolbar.cpp
+  Generating Code...
   1653006_MyPaint.vcxproj -> E:\1653006_MyPaint\Debug\MyPaint.exe

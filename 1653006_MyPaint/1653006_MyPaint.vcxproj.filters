@@ -102,6 +102,9 @@
     <Image Include="wnd_vertical.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Me.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\ReadMe.txt" />
