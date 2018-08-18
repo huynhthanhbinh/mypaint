@@ -26,8 +26,8 @@ public:
 
 struct Work {
 	int id;
-	int i; // ith of object in arrObj
 	Object* obj = NULL;
+	Object* cur = NULL; // use for CHANGE
 };
 
 struct CHILD_WND_DATA {
@@ -101,8 +101,8 @@ void drawFrame(HWND hWnd, CHILD_WND_DATA* data, int i);
 void sMode_convert(int& sMode, int x, int y, Position p, Object* obj);
 
 
-void doUndo(HWND hwndMDIClient);
-void doRedo(HWND hwndMDIClient);
+void doUndo(HWND hwndMDIClient, int mode);
+void doRedo(HWND hwndMDIClient, int mode);
 void createRedo(Work& undo, Object* obj, CHILD_WND_DATA* data);
 void checkUndoRedo(HWND hFrameWnd, HWND hWnd, HWND hToolBarWnd);
 

@@ -495,13 +495,6 @@ void deleteObject(HWND hwndMDIClient, int mode, int& i) {
 		HCURSOR arrow = LoadCursor(NULL, IDC_ARROW);
 		SetCursor(arrow);
 		DestroyCursor(arrow);
-
-		/*for (unsigned int j = 0; j < data->arrUndo.size(); j++) {
-			if (data->arrUndo[j].i > i) data->arrUndo[j].i--;
-		}
-		for (unsigned int j = 0; j < data->arrRedo.size(); j++) {
-			if (data->arrRedo[j].i > i) data->arrRedo[j].i--;
-		}*/
 	}
 }
 void copyObject(HWND hwndMDIClient, int mode, int i) {
@@ -653,10 +646,10 @@ void mousemoveObject(HWND hWnd, HWND activated, LPARAM lParam, Position& pos, bo
 			return; 
 		}
 
-		WCHAR xx[128];
+	/*	WCHAR xx[128];
 		wsprintf(xx, L"\nhwnd = %d, activated = %d, vector size = %d, i = %d\n", 
 			hWnd, activated, data->arrObject.size(), i);
-		OutputDebugString(xx);
+		OutputDebugString(xx);*/
 
 		Object* obj = data->arrObject[i];
 
@@ -671,7 +664,38 @@ void mousemoveObject(HWND hWnd, HWND activated, LPARAM lParam, Position& pos, bo
 		if (prev_i == -1 && mouse_down == false) sMode_convert(sMode, x, y, p, obj);
 
 		if (mouse_down == true) { // object is being chosen , check mode is move
-			if (prev_i == -1) xpos = obj->pos; // 1st click select object --> then move
+			if (prev_i == -1) { // 1st click select object --> then move
+				xpos = obj->pos;
+
+				Work redo;
+				redo.id = CHANGE;
+				
+				switch (obj->type) {
+				case LINE: {
+					redo.cur = new MyLine;
+					CopyMemory(redo.cur, obj, sizeof(MyLine));
+				} break;
+				
+				case RECTANGLE: {
+					redo.cur = new MyRectangle;
+					CopyMemory(redo.cur, obj, sizeof(MyRectangle));
+				} break;
+
+				case ELLIPSE: {
+					redo.cur = new MyEllipse;
+					CopyMemory(redo.cur, obj, sizeof(MyEllipse));
+				} break;
+
+				case INSERTTEXT: {
+					redo.cur = new MyText;
+					CopyMemory(redo.cur, obj, sizeof(MyText));
+				} break;
+
+				}
+
+				redo.cur->pos = xpos;
+				data->arrRedo.push_back(redo);
+			}
 
 			RECT rect;
 
@@ -686,6 +710,8 @@ void mousemoveObject(HWND hWnd, HWND activated, LPARAM lParam, Position& pos, bo
 				obj->pos.x2 = xpos.x2 + dx;
 				obj->pos.y1 = xpos.y1 + dy;
 				obj->pos.y2 = xpos.y2 + dy;
+
+				data->arrRedo.back().obj = obj;
 
 				paintRect(hWnd, p, rect, 20);
 				prev_i = i; 
@@ -757,6 +783,8 @@ void mousemoveObject(HWND hWnd, HWND activated, LPARAM lParam, Position& pos, bo
 			p.x2 = center.x;
 			p.y2 = center.y;
 			obj->pos = p;
+
+			data->arrRedo.back().obj = obj;
 
 			prev_i = i;
 		}
@@ -878,7 +906,6 @@ void sMode_convert(int& sMode, int x, int y, Position p, Object* obj) {
 
 void createRedo(Work& redo, Object* obj, CHILD_WND_DATA* data) {
 	redo.id = INSERT;
-	redo.i = data->arrObject.size();
 
 	switch (obj->type) {
 	case LINE:       redo.obj = obj;      break;
@@ -889,7 +916,7 @@ void createRedo(Work& redo, Object* obj, CHILD_WND_DATA* data) {
 
 	if (!data->arrUndo.empty()) data->arrUndo.clear();
 }
-void doUndo(HWND hwndMDIClient) {
+void doUndo(HWND hwndMDIClient, int mode) {
 	HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
 	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
 	if (data != NULL) {
@@ -902,6 +929,7 @@ void doUndo(HWND hwndMDIClient) {
 				data->arrObject.pop_back();
 				undo.id = DELETE;
 
+				if (mode != SELECT) break;
 				HCURSOR arrow = LoadCursor(NULL, IDC_ARROW);
 				SetCursor(arrow);
 				DestroyCursor(arrow);
@@ -915,7 +943,19 @@ void doUndo(HWND hwndMDIClient) {
 			} break;
 
 			case CHANGE: { // -> return to previous state
-				swap(undo.obj->pos, data->arrObject[undo.i]->pos); // chuyen trang thai
+				
+				for (int i = 0; i < data->arrObject.size(); i++) {
+					if (data->arrObject[i] == undo.obj) {
+						swap(undo.cur, undo.obj); 
+						swap(undo.obj, data->arrObject[i]); 
+						break;
+					}
+				}
+
+				if (mode != SELECT) break;
+				HCURSOR arrow = LoadCursor(NULL, IDC_ARROW);
+				SetCursor(arrow);
+				DestroyCursor(arrow);
 			} break;
 
 			}
@@ -926,7 +966,7 @@ void doUndo(HWND hwndMDIClient) {
 		}
 	}
 }
-void doRedo(HWND hwndMDIClient) {
+void doRedo(HWND hwndMDIClient, int mode) {
 	HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
 	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
 	if (data != NULL) {
@@ -939,6 +979,7 @@ void doRedo(HWND hwndMDIClient) {
 				data->arrObject.pop_back();
 				redo.id = DELETE;
 
+				if (mode != SELECT) break;
 				HCURSOR arrow = LoadCursor(NULL, IDC_ARROW);
 				SetCursor(arrow);
 				DestroyCursor(arrow);
@@ -952,7 +993,18 @@ void doRedo(HWND hwndMDIClient) {
 			} break;
 
 			case CHANGE: { // -> return to previous state
-				swap(redo.obj->pos, data->arrObject[redo.i]->pos); // chuyen trang thai
+				for (int i = 0; i < data->arrObject.size(); i++) {
+					if (data->arrObject[i] == redo.obj) {
+						swap(redo.cur, redo.obj);
+						swap(redo.obj, data->arrObject[i]);
+						break;
+					}
+				}
+
+				if (mode != SELECT) break;
+				HCURSOR arrow = LoadCursor(NULL, IDC_ARROW);
+				SetCursor(arrow);
+				DestroyCursor(arrow);
 			} break;
 
 			}
