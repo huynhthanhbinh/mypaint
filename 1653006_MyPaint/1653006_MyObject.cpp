@@ -171,40 +171,117 @@ void MyText::copy(HWND hWnd) {
 
 void OnPaint(HWND hWnd) {
 	PAINTSTRUCT ps;
-	HDC hdc = BeginPaint(hWnd, &ps);
-	HDC backbuffDC = CreateCompatibleDC(hdc);
+	HDC mainDC = BeginPaint(hWnd, &ps);
+	HDC backbufferDC = CreateCompatibleDC(mainDC);
 
 	RECT rect;
 	GetClientRect(hWnd, &rect);
 	int width = rect.right;
 	int height = rect.bottom;
 
-	HBITMAP backbuffer = CreateCompatibleBitmap(hdc, width, height);
+	HBITMAP backbuffer = CreateCompatibleBitmap(mainDC, width, height);
 	HBRUSH hBrush = CreateSolidBrush(RGB(255, 255, 255));
 
-	int savedDC = SaveDC(backbuffDC);
-	SelectObject(backbuffDC, backbuffer);
-	FillRect(backbuffDC, &rect, hBrush);
+	int savedDC = SaveDC(backbufferDC);
+	SelectObject(backbufferDC, backbuffer);
+	FillRect(backbufferDC, &rect, hBrush);
 
 
 	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
 	for (unsigned int i = 0; i < data->arrObject.size(); i++) {
-		data->arrObject[i]->draw(hWnd, backbuffDC);
+		data->arrObject[i]->draw(hWnd, backbufferDC);
 	}
 
-	BitBlt(hdc, 0, 0, width, height, backbuffDC, 0, 0, SRCCOPY);
-	RestoreDC(backbuffDC, savedDC);
+	BitBlt(mainDC, 0, 0, width, height, backbufferDC, 0, 0, SRCCOPY);
+	RestoreDC(backbufferDC, savedDC);
 
 	DeleteObject(backbuffer);
 	DeleteObject(hBrush);
-	DeleteDC(backbuffDC);
+	DeleteDC(backbufferDC);
 
 	EndPaint(hWnd, &ps);
-	ReleaseDC(hWnd, hdc);
+	ReleaseDC(hWnd, mainDC);
+}
+void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mode, bool& mouse_down, int& i, int& sMode) {
+	SetCapture(hWnd); // Capture mouse input
+	RECT rect;
+	POINT upperleft, lowerright;
+	GetClientRect(hWnd, &rect);
+	upperleft.x = rect.left;
+	upperleft.y = rect.top;
+	lowerright.x = rect.right + 1;
+	lowerright.y = rect.bottom + 1;
+	ClientToScreen(hWnd, &upperleft);
+	ClientToScreen(hWnd, &lowerright);
+	SetRect(&rect, upperleft.x, upperleft.y, lowerright.x, lowerright.y);
+	ClipCursor(&rect);
+
+	if (mode == INSERTTEXT) onLButtonDownText(hWnd, hEdit, pos);
+	if (mode == SELECT) onSelect(hWnd, lParam, i, sMode);
+
+	pos.x1 = pos.x2 = LOWORD(lParam);
+	pos.y1 = pos.y2 = HIWORD(lParam);
+
+	mouse_down = true;
+}
+void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode, bool mouse_down, int i) {
+	//if ((wParam & MK_LBUTTON) == MK_LBUTTON) {
+	if (mouse_down == true) {
+		HDC hdc = GetDC(hWnd);
+		HDC backbuffDC = CreateCompatibleDC(hdc);
+
+		RECT rect;
+		GetClientRect(hWnd, &rect);
+		int width = rect.right;
+		int height = rect.bottom;
+
+		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
+
+		HBITMAP backbuffer = CreateCompatibleBitmap(hdc, width, height);
+		HBRUSH hBrush = CreateSolidBrush(RGB(255,255,255));
+
+
+		int savedDC = SaveDC(backbuffDC);
+		SelectObject(backbuffDC, backbuffer);
+		FillRect(backbuffDC, &rect, hBrush);
+
+		for (unsigned int i = 0; i < data->arrObject.size(); i++) {
+			data->arrObject[i]->draw(hWnd, backbuffDC);
+		}
+		
+		HPEN hPen;
+		if (mode == INSERTTEXT) hPen = CreatePen(PS_SOLID, 1, RGB(0,0,0));
+		else                    hPen = CreatePen(PS_SOLID, 2, data->rgbColor);
+		SelectObject(backbuffDC, hPen);
+
+		// Vẽ đường thẳng cũ 
+		//drawObject(hWnd, lParam, backbuffDC, pos, mode, data, i);
+
+		pos.x2 = LOWORD(lParam);
+		pos.y2 = HIWORD(lParam);
+
+		// Vẽ đường thẳng mới 
+		drawObject(hWnd, lParam, backbuffDC, pos, mode, data, i);
+
+		SelectObject(backbuffDC, backbuffer);
+		BitBlt(hdc, 0, 0, width, height, backbuffDC, 0, 0, SRCCOPY);
+		RestoreDC(backbuffDC, savedDC);
+
+
+		DeleteObject(backbuffer);
+		DeleteObject(hBrush);
+		DeleteObject(hPen);
+
+		DeleteDC(backbuffDC);
+		ReleaseDC(hWnd, hdc);
+	}
 }
 void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode, bool& mouse_down) {
+	if (mouse_down == false) return;
+
 	ClipCursor(NULL); //release the mouse cursor
 	ReleaseCapture(); //release the mouse capture
+
 	mouse_down = false;
 
 	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
@@ -212,7 +289,7 @@ void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode
 	switch (mode) {
 	case LINE:
 		if (!checkSamePoint(pos)) {
-			MyLine *l = new MyLine; 
+			MyLine *l = new MyLine;
 			l->pos = pos;
 			l->type = LINE;
 			l->rgbColor = data->rgbColor;
@@ -260,12 +337,12 @@ void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode
 		hEdit = CreateWindowEx(
 			WS_EX_CLIENTEDGE, L"EDIT", L"", WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL,
 			tpos.x1, tpos.y1, tpos.x2 - tpos.x1, tpos.y2 - tpos.y1, hWnd, nullptr, hInst, nullptr);
-		
+
 		HFONT hFont = CreateFont(
-			data->logFont.lfHeight, data->logFont.lfWidth, 
-			data->logFont.lfEscapement, data->logFont.lfOrientation, 
+			data->logFont.lfHeight, data->logFont.lfWidth,
+			data->logFont.lfEscapement, data->logFont.lfOrientation,
 			data->logFont.lfWeight, data->logFont.lfItalic, data->logFont.lfUnderline,
-			data->logFont.lfStrikeOut, data->logFont.lfCharSet, 
+			data->logFont.lfStrikeOut, data->logFont.lfCharSet,
 			data->logFont.lfOutPrecision, data->logFont.lfClipPrecision, data->logFont.lfQuality,
 			data->logFont.lfPitchAndFamily, data->logFont.lfFaceName);
 
@@ -273,60 +350,10 @@ void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode
 		SendMessage(hEdit, WM_SETFONT, WPARAM(hFont), TRUE);
 		SetFocus(hEdit);
 		ShowWindow(hEdit, SW_NORMAL);
-		} break;
+	} break;
 	}
 	//wsprintf(s, L"\nNumbers of object: %d\n", data->arrObject.size()); OutputDebugString(s);
 	return;
-}
-void OnLButtonDown(HWND hWnd, HWND& hEdit, LPARAM lParam, Position& pos, int mode, bool& mouse_down, int& i, int& sMode) {
-	SetCapture(hWnd); // Capture mouse input
-	RECT rect;
-	POINT upperleft, lowerright;
-	GetClientRect(hWnd, &rect);
-	upperleft.x = rect.left;
-	upperleft.y = rect.top;
-	lowerright.x = rect.right + 1;
-	lowerright.y = rect.bottom + 1;
-	ClientToScreen(hWnd, &upperleft);
-	ClientToScreen(hWnd, &lowerright);
-	SetRect(&rect, upperleft.x, upperleft.y, lowerright.x, lowerright.y);
-	ClipCursor(&rect);
-
-	if (mode == INSERTTEXT) onLButtonDownText(hWnd, hEdit, pos);
-	if (mode == SELECT) onSelect(hWnd, lParam, i, sMode);
-
-	pos.x1 = pos.x2 = LOWORD(lParam);
-	pos.y1 = pos.y2 = HIWORD(lParam);
-
-	mouse_down = true;
-
-	//MessageBox(NULL, L"LBUTTON DOWN", L"NOTICE", MB_OK);
-}
-void OnMouseMove(HWND hWnd, WPARAM wParam, LPARAM lParam, Position& pos, int mode, bool mouse_down, int i) {
-	//if ((wParam & MK_LBUTTON) == MK_LBUTTON) {
-	if (mouse_down == true) {
-		HDC hdc = GetDC(hWnd);
-		SetROP2(hdc, R2_NOTXORPEN);
-
-		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(hWnd, 0);
-		HPEN hPen;
-		if (mode == INSERTTEXT ) hPen = CreatePen(PS_SOLID, 1, data->rgbColor);
-		else hPen = CreatePen(PS_SOLID, 2, data->rgbColor);
-		SelectObject(hdc, hPen);
-
-		// Vẽ đường thẳng cũ 
-		drawObject(hWnd, lParam, hdc, pos, mode, data, i);
-
-		// Cập nhật điểm mới !!!
-		pos.x2 = LOWORD(lParam);
-		pos.y2 = HIWORD(lParam);
-
-		// Vẽ đường thẳng mới (do mode NOT_XOR)
-		drawObject(hWnd, lParam, hdc, pos, mode, data, i);
-
-		DeleteObject(hPen);
-		ReleaseDC(hWnd, hdc);
-	}
 }
 bool drawObject(HWND hWnd, LPARAM lParam, HDC dc, Position pos, int mode, CHILD_WND_DATA* data, int i) {
 	switch (mode) {
