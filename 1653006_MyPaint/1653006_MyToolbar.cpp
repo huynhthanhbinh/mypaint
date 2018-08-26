@@ -23,6 +23,31 @@
 
 void createColorbar(HINSTANCE hInst, HWND hWnd, HWND& hColorbar)
 {
+	TBBUTTON tbButton[] = {
+	{ 30, 0, TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_SEP, 0, 0 }, // seperator 
+	{ 0, ID_COLOR_1,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 1, ID_COLOR_2,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 2, ID_COLOR_3,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 3, ID_COLOR_4,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 4, ID_COLOR_5,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 5, ID_COLOR_6,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 6, ID_COLOR_7,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 7, ID_COLOR_8,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 8, ID_COLOR_9,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 9, ID_COLOR_10,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 10, ID_COLOR_11,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 11, ID_COLOR_12,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 12, ID_COLOR_13,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 13, ID_COLOR_14,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 14, ID_COLOR_15,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 15, ID_COLOR_16,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 16, ID_COLOR_17,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 17, ID_COLOR_18,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 18, ID_COLOR_19,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 19, ID_COLOR_20,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	};
+
+	
 	RECT rect;
 	GetClientRect(hWnd, &rect);
 	
@@ -31,30 +56,16 @@ void createColorbar(HINSTANCE hInst, HWND hWnd, HWND& hColorbar)
 		0, 0, 0, 0,
 		hWnd, NULL, HINST_COMMCTRL, NULL);
 
-	SendMessage(hColorbar, TB_SETMAXTEXTROWS, 0, 0); // for button tool-tips
+	HBITMAP hBitmap;
+	HIMAGELIST hImageList = ImageList_Create(16, 16,   
+		ILC_COLOR24 | ILC_MASK, 
+		20, 0);
+
+
+	ImageList_Add(hImageList, LoadBitmap(hInst, MAKEINTRESOURCE(IDB_COLOR)), NULL);
+	SendMessage(hColorbar, TB_SETIMAGELIST, (WPARAM)0, (LPARAM)hImageList);
+	SendMessage(hColorbar, TB_SETMAXTEXTROWS, 0, 0); 
 	SendMessage(hColorbar, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
-	
-	TBBUTTON tbButton[] =
-	{
-	{ 30, 0, TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_SEP, 0, 0 }, // seperator 
-	{ 0, ID_DRAW_COLOR,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
-	{ 1, ID_DRAW_FONT,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Fonts" }
-	};
-
-	TBADDBITMAP	tbBitmap[] =
-	{
-	{ hInst, IDB_COLORS },
-	{ hInst, IDB_FONTS }
-	};
-
-
-	int idx = (int)
-	SendMessage(hColorbar, TB_ADDBITMAP, (WPARAM)1, (LPARAM)(LPTBADDBITMAP)&tbBitmap[0]);
-	SendMessage(hColorbar, TB_ADDBITMAP, (WPARAM)1, (LPARAM)(LPTBADDBITMAP)&tbBitmap[1]);
-
-	tbButton[1].iBitmap += idx;
-	tbButton[2].iBitmap += idx;
-
 	SendMessage(hColorbar, TB_ADDBUTTONS, sizeof(tbButton) / sizeof(TBBUTTON), (LPARAM)&tbButton);
 
 	ShowWindow(hColorbar, SW_SHOW);
