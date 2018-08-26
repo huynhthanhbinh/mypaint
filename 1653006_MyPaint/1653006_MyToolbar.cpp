@@ -19,6 +19,41 @@
 // 4th: kiểu của item: button, seperator, ...
 // 5th: 0
 // 6th: 0
+
+
+void createColorbar(HINSTANCE hInst, HWND hWnd, HWND& hColorbar)
+{
+	hColorbar = CreateWindowEx(0, TOOLBARCLASSNAME, NULL,
+		WS_CHILD | WS_VISIBLE | TBSTYLE_TOOLTIPS | TBSTYLE_FLAT | CCS_VERT, 
+		0, 0, 0, 0,
+		hWnd, NULL, HINST_COMMCTRL, NULL);
+
+	SendMessage(hColorbar, TB_SETMAXTEXTROWS, 0, 0); // for button tool-tips
+	SendMessage(hColorbar, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
+	
+	TBBUTTON tbButton[] =
+	{
+	{ 30, 0, TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_SEP, 0, 0 }, // seperator 
+	{ 0, ID_DRAW_COLOR,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Colors" },
+	{ 1, ID_DRAW_FONT,	TBSTATE_ENABLED | TBSTATE_WRAP, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Choose Fonts" }
+	};
+
+	TBADDBITMAP	tbBitmap[] =
+	{
+	{ hInst, IDB_COLORS },
+	{ hInst, IDB_FONTS }
+	};
+
+
+	int idx = (int)
+	SendMessage(hColorbar, TB_ADDBITMAP, (WPARAM)1, (LPARAM)(LPTBADDBITMAP)&tbBitmap[0]);
+	SendMessage(hColorbar, TB_ADDBITMAP, (WPARAM)1, (LPARAM)(LPTBADDBITMAP)&tbBitmap[1]);
+
+	tbButton[1].iBitmap += idx;
+	tbButton[2].iBitmap += idx;
+
+	SendMessage(hColorbar, TB_ADDBUTTONS, sizeof(tbButton) / sizeof(TBBUTTON), (LPARAM)&tbButton);
+}
 void createToolbar(HWND hWnd, HWND& hToolBarWnd, bool& Toolbar_Exist)
 {
 	// loading Common Control DLL
@@ -28,6 +63,8 @@ void createToolbar(HWND hWnd, HWND& hToolBarWnd, bool& Toolbar_Exist)
 	{
 		// Zero-based Bitmap image, ID of command, Button state, Button style, 
 		// ...App data, Zero-based string (Button's label)
+	{ -1, 0,	TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 },
+	{ 10, 0,	TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0 },
 	{ STD_FILENEW,	ID_FILE_NEW,    TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"New (Ctrl + N)"},
 	{ STD_FILEOPEN,	ID_FILE_OPEN,   TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Open (Ctrl + O)" },
 	{ STD_FILESAVE,	ID_FILE_SAVE,   TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Save (Ctrl + S)" },

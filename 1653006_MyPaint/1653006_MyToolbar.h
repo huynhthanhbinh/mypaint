@@ -8,6 +8,7 @@
 #include "stdafx.h"
 
 // TOOLBAR
+void createColorbar(HINSTANCE hInst, HWND hWnd, HWND& hColorbar);
 void createToolbar(HWND hWnd, HWND& hToolBarWnd, bool& Toolbar_Exist);
 void ToolbarNotifyHandle(HINSTANCE hInst, LPARAM lParam);
 void ToolbarStyle(HWND hToolBarWnd, int tbStyle);
