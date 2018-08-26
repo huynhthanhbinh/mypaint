@@ -11,7 +11,7 @@
 void createToolbar(HWND hWnd, HWND& hToolBarWnd, bool& Toolbar_Exist);
 void ToolbarNotifyHandle(HINSTANCE hInst, LPARAM lParam);
 void ToolbarStyle(HWND hToolBarWnd, int tbStyle);
-void viewToolbar(HWND hWnd, HWND hToolBarWnd);
+void viewToolbar(HWND hWnd, HWND hToolBarWnd, HWND hwndMDIClient);
 void addEditToolbar(HWND hToolBarWnd, bool Toolbar_Exist);
 void addFontsNColors(HINSTANCE hInst, HWND hToolBarWnd, bool Toolbar_Exist);
 void addDrawToolBar(HINSTANCE hInst, HWND hToolBarWnd, bool Toolbar_Exist);

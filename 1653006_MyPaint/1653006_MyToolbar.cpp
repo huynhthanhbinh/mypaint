@@ -76,17 +76,26 @@ void ToolbarStyle(HWND hToolBarWnd, int tbStyle)
 	SendMessage(hToolBarWnd, TB_SETSTYLE, (WPARAM)0, (LPARAM)(DWORD)tbStyle | CCS_TOP);
 	ShowWindow(hToolBarWnd, SW_SHOW);
 }
-void viewToolbar(HWND hWnd, HWND hToolBarWnd)
+void viewToolbar(HWND hWnd, HWND hToolBarWnd, HWND hwndMDIClient)
 {
+	RECT rect;
+	GetClientRect(hWnd, &rect);
+
 	int vFlag = GetMenuState(GetMenu(hWnd), ID_TOOLBAR_VIEWHIDE, MF_BYCOMMAND) & MF_CHECKED;
 
-	if (vFlag)
+	if (vFlag) // Hide Toolbar
 	{
 		ShowWindow(hToolBarWnd, SW_HIDE);
 		vFlag = MF_UNCHECKED;
+
+		MoveWindow(hToolBarWnd, rect.left, rect.top, rect.right, rect.bottom, TRUE);
+		MoveWindow(hwndMDIClient, rect.left, rect.top, rect.right, rect.bottom, TRUE);
 	}
-	else
+	else // Show Toolbar
 	{
+		MoveWindow(hwndMDIClient, rect.left, rect.top + 28, rect.right, rect.bottom - 28, TRUE);
+		MoveWindow(hToolBarWnd, rect.left, rect.top + 2, rect.right, rect.bottom - 2, TRUE);
+		
 		ShowWindow(hToolBarWnd, SW_SHOW);
 		vFlag = MF_CHECKED;
 	}
