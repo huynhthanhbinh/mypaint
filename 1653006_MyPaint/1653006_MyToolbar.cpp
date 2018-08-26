@@ -79,7 +79,7 @@ void createToolbar(HWND hWnd, HWND& hToolBarWnd, bool& Toolbar_Exist)
 	{
 		// Zero-based Bitmap image, ID of command, Button state, Button style, 
 		// ...App data, Zero-based string (Button's label)
-	{ -1, 0,	TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0 },
+	{ -1, 0,	TBSTATE_INDETERMINATE, TBSTYLE_BUTTON, 0, 0 },
 	{ 10, 0,	TBSTATE_ENABLED, TBSTYLE_SEP, 0, 0 },
 	{ STD_FILENEW,	ID_FILE_NEW,    TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"New (Ctrl + N)"},
 	{ STD_FILEOPEN,	ID_FILE_OPEN,   TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Open (Ctrl + O)" },
