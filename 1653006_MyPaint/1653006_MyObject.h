@@ -122,4 +122,7 @@ void initChildWindow(HWND hWnd, int nType);
 void initFrameWindow(HWND hWnd, HWND& hFrameWnd, HWND& hwndMDIClient, HINSTANCE hInst);
 void onNewDrawWnd(HWND hWnd, HWND& hwndMDIClient, WCHAR* szDrawTitle, WCHAR* szDrawWindowClass);
 
+
+void changeColor(HWND hwndMDIClient, int r, int g, int b);
+
 #endif // !_MY_OBJECT_H_

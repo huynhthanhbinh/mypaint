@@ -1402,3 +1402,11 @@ void onNewDrawWnd(HWND hWnd, HWND& hwndMDIClient, WCHAR* szDrawTitle, WCHAR* szD
 
 	i++;
 }
+
+
+void changeColor(HWND hwndMDIClient, int r, int g, int b) {
+	HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
+	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
+
+	data->rgbColor = RGB(r, g, b);
+}
