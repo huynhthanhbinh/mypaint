@@ -23,6 +23,9 @@
 
 void createColorbar(HINSTANCE hInst, HWND hWnd, HWND& hColorbar)
 {
+	RECT rect;
+	GetClientRect(hWnd, &rect);
+	
 	hColorbar = CreateWindowEx(0, TOOLBARCLASSNAME, NULL,
 		WS_CHILD | WS_VISIBLE | TBSTYLE_TOOLTIPS | TBSTYLE_FLAT | CCS_VERT, 
 		0, 0, 0, 0,
@@ -53,6 +56,8 @@ void createColorbar(HINSTANCE hInst, HWND hWnd, HWND& hColorbar)
 	tbButton[2].iBitmap += idx;
 
 	SendMessage(hColorbar, TB_ADDBUTTONS, sizeof(tbButton) / sizeof(TBBUTTON), (LPARAM)&tbButton);
+
+	ShowWindow(hColorbar, SW_SHOW);
 }
 void createToolbar(HWND hWnd, HWND& hToolBarWnd, bool& Toolbar_Exist)
 {
@@ -113,31 +118,99 @@ void ToolbarStyle(HWND hToolBarWnd, int tbStyle)
 	SendMessage(hToolBarWnd, TB_SETSTYLE, (WPARAM)0, (LPARAM)(DWORD)tbStyle | CCS_TOP);
 	ShowWindow(hToolBarWnd, SW_SHOW);
 }
-void viewToolbar(HWND hWnd, HWND hToolBarWnd, HWND hwndMDIClient)
+void viewToolbar(HWND hWnd, HWND hwndMDIClient, HWND hToolBarWnd, HWND hColorbar)
 {
 	RECT rect;
 	GetClientRect(hWnd, &rect);
 
 	int vFlag = GetMenuState(GetMenu(hWnd), ID_TOOLBAR_VIEWHIDE, MF_BYCOMMAND) & MF_CHECKED;
+	int cFlag = GetMenuState(GetMenu(hWnd), ID_TOOLBAR_COLORBAR, MF_BYCOMMAND) & MF_CHECKED;
 
 	if (vFlag) // Hide Toolbar
 	{
 		ShowWindow(hToolBarWnd, SW_HIDE);
 		vFlag = MF_UNCHECKED;
 
-		MoveWindow(hToolBarWnd, rect.left, rect.top, rect.right, rect.bottom, TRUE);
-		MoveWindow(hwndMDIClient, rect.left, rect.top, rect.right, rect.bottom, TRUE);
+		if (cFlag) { // Hide Toolbar, Show Colorbar
+			ShowWindow(hColorbar, SW_SHOW);
+
+			MoveWindow(hToolBarWnd, rect.left + 28, rect.top, rect.right - 28, rect.bottom, TRUE);
+			MoveWindow(hwndMDIClient, rect.left + 28, rect.top, rect.right - 28, rect.bottom, TRUE);
+		}
+		else { // Hide Toolbar, Hide Colorbar
+			ShowWindow(hColorbar, SW_HIDE);
+
+			MoveWindow(hToolBarWnd, rect.left, rect.top, rect.right, rect.bottom, TRUE);
+			MoveWindow(hwndMDIClient, rect.left, rect.top, rect.right, rect.bottom, TRUE);
+		}
 	}
 	else // Show Toolbar
 	{
-		MoveWindow(hwndMDIClient, rect.left, rect.top + 28, rect.right, rect.bottom - 28, TRUE);
-		MoveWindow(hToolBarWnd, rect.left, rect.top + 2, rect.right, rect.bottom - 2, TRUE);
-		
 		ShowWindow(hToolBarWnd, SW_SHOW);
 		vFlag = MF_CHECKED;
+
+		if (cFlag) { // Show Toolbar, Show Colorbar
+			ShowWindow(hColorbar, SW_SHOW);
+
+			MoveWindow(hToolBarWnd, rect.left + 28, rect.top + 2, rect.right - 28, rect.bottom - 2, TRUE);
+			MoveWindow(hwndMDIClient, rect.left + 28, rect.top + 28, rect.right - 28, rect.bottom - 28, TRUE);
+		}
+		else { // Show Toolbar, Hide Colorbar
+			ShowWindow(hColorbar, SW_HIDE);
+
+			MoveWindow(hToolBarWnd, rect.left, rect.top + 2, rect.right, rect.bottom - 2, TRUE);
+			MoveWindow(hwndMDIClient, rect.left, rect.top + 28, rect.right, rect.bottom - 28, TRUE);
+		}
 	}
 
 	CheckMenuItem(GetSubMenu(GetMenu(hWnd), menuPos_Toolbar), ID_TOOLBAR_VIEWHIDE, vFlag | MF_BYCOMMAND);
+}
+void viewColorbar(HWND hWnd, HWND hwndMDIClient, HWND hToolBarWnd, HWND hColorbar)
+{
+	RECT rect;
+	GetClientRect(hWnd, &rect);
+
+	int vFlag = GetMenuState(GetMenu(hWnd), ID_TOOLBAR_VIEWHIDE, MF_BYCOMMAND) & MF_CHECKED;
+	int cFlag = GetMenuState(GetMenu(hWnd), ID_TOOLBAR_COLORBAR, MF_BYCOMMAND) & MF_CHECKED;
+
+	if (cFlag) // Hide Colorbar
+	{
+		ShowWindow(hColorbar, SW_HIDE);
+		cFlag = MF_UNCHECKED;
+
+		if (vFlag) { // Show Toolbar, Hide Colorbar
+			ShowWindow(hToolBarWnd, SW_SHOW);
+
+			MoveWindow(hToolBarWnd, rect.left, rect.top + 2, rect.right, rect.bottom - 2, TRUE);
+			MoveWindow(hwndMDIClient, rect.left, rect.top + 28, rect.right, rect.bottom - 28, TRUE);
+		}
+		else { // Hide Toolbar, Hide Colorbar
+			ShowWindow(hToolBarWnd, SW_HIDE);
+
+			MoveWindow(hToolBarWnd, rect.left, rect.top, rect.right, rect.bottom, TRUE);
+			MoveWindow(hwndMDIClient, rect.left, rect.top, rect.right, rect.bottom, TRUE);
+		}
+	}
+	else // Show Colorbar
+	{
+		ShowWindow(hColorbar, SW_SHOW);
+		cFlag = MF_CHECKED;
+
+		if (vFlag) { // Show Toolbar, Show Colorbar
+			ShowWindow(hToolBarWnd, SW_SHOW);
+
+			MoveWindow(hToolBarWnd, rect.left + 28, rect.top + 2, rect.right - 28, rect.bottom - 2, TRUE);
+			MoveWindow(hwndMDIClient, rect.left + 28, rect.top + 28, rect.right - 28, rect.bottom - 28, TRUE);
+		}
+		else { // Hide Toolbar, Show Colorbar
+			ShowWindow(hToolBarWnd, SW_HIDE);
+
+			MoveWindow(hToolBarWnd, rect.left + 28, rect.top, rect.right - 28, rect.bottom, TRUE);
+			MoveWindow(hwndMDIClient, rect.left + 28, rect.top, rect.right - 28, rect.bottom, TRUE);
+		}
+	}
+
+	CheckMenuItem(GetSubMenu(GetMenu(hWnd), menuPos_Toolbar), ID_TOOLBAR_COLORBAR, cFlag | MF_BYCOMMAND);
 }
 void addEditToolbar(HWND hToolBarWnd, bool Toolbar_Exist)
 {
