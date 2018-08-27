@@ -299,6 +299,8 @@ void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode
 			data->arrRedo.push_back(redo);
 
 			data->arrObject.push_back(l);
+
+			data->saved = false;
 		}
 		break;
 	case RECTANGLE:
@@ -313,6 +315,8 @@ void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode
 			data->arrRedo.push_back(redo);
 
 			data->arrObject.push_back(r);
+			
+			data->saved = false;
 		}
 		break;
 	case ELLIPSE:
@@ -327,6 +331,8 @@ void OnLButtonUp(HINSTANCE hInst, HWND& hEdit, HWND hWnd, Position pos, int mode
 			data->arrRedo.push_back(redo);
 
 			data->arrObject.push_back(e);
+
+			data->saved = false;
 		}
 		break;
 	case INSERTTEXT: {
@@ -416,6 +422,8 @@ void onLButtonDownText(HWND hWnd, HWND& hEdit, Position& pos) {
 			data->arrRedo.push_back(redo);
 
 			data->arrObject.push_back(t);
+
+			data->saved = false;
 
 			RECT r; GetWindowRect(hEdit, &r);
 			MapWindowPoints(hEdit, hWnd, (LPPOINT)&r, 2);
@@ -1262,7 +1270,7 @@ void OnOpen(HWND hWnd, HWND hwndMDIClient, WCHAR* szDrawTitle, WCHAR* szDrawWind
 	else
 		;//ErrorHandler();
 }
-void OnSave(HWND hWnd, HWND hwndMDIClient) {
+bool OnSave(HWND hWnd, HWND hwndMDIClient) {
 	OPENFILENAME ofn; // CTDL dùng cho dialog save
 	TCHAR szFile[256];
 	TCHAR szFilter[] = TEXT("Draw file (.drw)\0 * .drw\0Bitmap (.bmp)\0 * .bmp\0");
@@ -1283,15 +1291,19 @@ void OnSave(HWND hWnd, HWND hwndMDIClient) {
 	if (GetSaveFileName(&ofn)) {
 		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
 
-		if (wcsstr(ofn.lpstrFile, L".drw"))
+		if (wcsstr(ofn.lpstrFile, L".drw")) {
 			saveFile(data->arrObject, ofn.lpstrFile);
+			MessageBox(hWnd, L"Successfully Save File !", L"SAVE FILE NOTICE", MB_OK);
+			data->saved = true;
+			return true;
+		}
 		else if (wcsstr(ofn.lpstrFile, L".bmp")) {
 			saveBitmap(current, ofn.lpstrFile);
+			MessageBox(hWnd, L"Successfully Save File !", L"SAVE FILE NOTICE", MB_OK);
+			return false;
 		}
-
-		MessageBox(hWnd, L"Successfully Save File !", L"SAVE FILE NOTICE", MB_OK);
 	}
-	else;//ErrorHandler();
+	else return false;//ErrorHandler();
 }
 void OnChooseColors(HWND hWnd, HWND hwndMDIClient) {
 	HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);

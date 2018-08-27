@@ -39,6 +39,8 @@ struct CHILD_WND_DATA {
 	vector <Object*> arrObject;
 	vector <Work> arrUndo;
 	vector <Work> arrRedo;
+
+	bool saved = false;
 };
 
 class MyLine : public Object {
@@ -114,7 +116,7 @@ void OnChooseFonts(HWND hWnd, HWND hwndMDIClient);
 
 void saveFile(vector <Object*>  arrObject, LPTSTR szFile);
 void openFile(vector <Object*>& arrObject, LPTSTR szFile);
-void OnSave(HWND hWnd, HWND hwndMDIClient);
+bool OnSave(HWND hWnd, HWND hwndMDIClient);
 void OnOpen(HWND hWnd, HWND hwndMDIClient, WCHAR* szDrawTitle, WCHAR* szDrawWindowClass);
 
 
