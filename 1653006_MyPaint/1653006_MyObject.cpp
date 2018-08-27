@@ -1308,11 +1308,15 @@ bool OnSave(HWND hWnd, HWND hwndMDIClient) {
 			data->saved = true;
 			data->exist = true;
 			wcscpy(data->path, ofn.lpstrFile);
+
+			WCHAR FileTitle[MAX_LOADSTRING];
+			GetFileTitle(ofn.lpstrFile, FileTitle, (WORD)wcslen(FileTitle));
+			SetWindowText(current, FileTitle);
 			return true;
 		}
 		else if (wcsstr(ofn.lpstrFile, L".bmp")) {
 			saveBitmap(current, ofn.lpstrFile);
-			MessageBox(hWnd, L"Successfully Save File !", L"SAVE FILE NOTICE", MB_OK);
+			MessageBox(hWnd, L"Successfully print Bitmap !", L"PRINT BITMAP NOTICE", MB_OK);
 			return false;
 		}
 	}
