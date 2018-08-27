@@ -148,13 +148,13 @@ void viewToolbar(HWND hWnd, HWND hwndMDIClient, HWND hToolBarWnd, HWND hColorbar
 			ShowWindow(hColorbar, SW_SHOW);
 
 			MoveWindow(hToolBarWnd, rect.left + 28, rect.top, rect.right - 28, rect.bottom, TRUE);
-			MoveWindow(hwndMDIClient, rect.left + 28, rect.top, rect.right - 28, rect.bottom, TRUE);
+			MoveWindow(hwndMDIClient, rect.left + 28, rect.top, rect.right - 28, rect.bottom - 22, TRUE);
 		}
 		else { // Hide Toolbar, Hide Colorbar
 			ShowWindow(hColorbar, SW_HIDE);
 
 			MoveWindow(hToolBarWnd, rect.left, rect.top, rect.right, rect.bottom, TRUE);
-			MoveWindow(hwndMDIClient, rect.left, rect.top, rect.right, rect.bottom, TRUE);
+			MoveWindow(hwndMDIClient, rect.left, rect.top, rect.right, rect.bottom - 22, TRUE);
 		}
 	}
 	else // Show Toolbar
@@ -166,13 +166,13 @@ void viewToolbar(HWND hWnd, HWND hwndMDIClient, HWND hToolBarWnd, HWND hColorbar
 			ShowWindow(hColorbar, SW_SHOW);
 
 			MoveWindow(hToolBarWnd, rect.left + 28, rect.top + 2, rect.right - 28, rect.bottom - 2, TRUE);
-			MoveWindow(hwndMDIClient, rect.left + 28, rect.top + 28, rect.right - 28, rect.bottom - 28, TRUE);
+			MoveWindow(hwndMDIClient, rect.left + 28, rect.top + 28, rect.right - 28, rect.bottom - 50, TRUE);
 		}
 		else { // Show Toolbar, Hide Colorbar
 			ShowWindow(hColorbar, SW_HIDE);
 
 			MoveWindow(hToolBarWnd, rect.left, rect.top + 2, rect.right, rect.bottom - 2, TRUE);
-			MoveWindow(hwndMDIClient, rect.left, rect.top + 28, rect.right, rect.bottom - 28, TRUE);
+			MoveWindow(hwndMDIClient, rect.left, rect.top + 28, rect.right, rect.bottom - 50, TRUE);
 		}
 	}
 
@@ -195,13 +195,13 @@ void viewColorbar(HWND hWnd, HWND hwndMDIClient, HWND hToolBarWnd, HWND hColorba
 			ShowWindow(hToolBarWnd, SW_SHOW);
 
 			MoveWindow(hToolBarWnd, rect.left, rect.top + 2, rect.right, rect.bottom - 2, TRUE);
-			MoveWindow(hwndMDIClient, rect.left, rect.top + 28, rect.right, rect.bottom - 28, TRUE);
+			MoveWindow(hwndMDIClient, rect.left, rect.top + 28, rect.right, rect.bottom - 50, TRUE);
 		}
 		else { // Hide Toolbar, Hide Colorbar
 			ShowWindow(hToolBarWnd, SW_HIDE);
 
 			MoveWindow(hToolBarWnd, rect.left, rect.top, rect.right, rect.bottom, TRUE);
-			MoveWindow(hwndMDIClient, rect.left, rect.top, rect.right, rect.bottom, TRUE);
+			MoveWindow(hwndMDIClient, rect.left, rect.top, rect.right, rect.bottom - 22, TRUE);
 		}
 	}
 	else // Show Colorbar
@@ -213,13 +213,13 @@ void viewColorbar(HWND hWnd, HWND hwndMDIClient, HWND hToolBarWnd, HWND hColorba
 			ShowWindow(hToolBarWnd, SW_SHOW);
 
 			MoveWindow(hToolBarWnd, rect.left + 28, rect.top + 2, rect.right - 28, rect.bottom - 2, TRUE);
-			MoveWindow(hwndMDIClient, rect.left + 28, rect.top + 28, rect.right - 28, rect.bottom - 28, TRUE);
+			MoveWindow(hwndMDIClient, rect.left + 28, rect.top + 28, rect.right - 28, rect.bottom - 50, TRUE);
 		}
 		else { // Hide Toolbar, Show Colorbar
 			ShowWindow(hToolBarWnd, SW_HIDE);
 
 			MoveWindow(hToolBarWnd, rect.left + 28, rect.top, rect.right - 28, rect.bottom, TRUE);
-			MoveWindow(hwndMDIClient, rect.left + 28, rect.top, rect.right - 28, rect.bottom, TRUE);
+			MoveWindow(hwndMDIClient, rect.left + 28, rect.top, rect.right - 28, rect.bottom - 22, TRUE);
 		}
 	}
 
@@ -509,4 +509,40 @@ void disableCommand(HWND hFrameWnd, HWND hToolBarWnd) {
 
 	for (UINT i = ID_FILE_SAVE; i <= ID_WINDOW_CLOSEALL; ++i)
 		SendMessage(hToolBarWnd, TB_SETSTATE, i, TBSTATE_INDETERMINATE);
+}
+
+
+void OnStatusbarSize(HWND hWnd, int width) {
+	HWND hStatusbar = (HWND)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+	int nHalf = width / 2;
+	int nParts[] = { nHalf, nHalf + nHalf / 3, nHalf + nHalf * 2 / 3, -1 };
+	SendMessage(hStatusbar, SB_SETPARTS, 4, (LPARAM)&nParts);
+	SendMessage(hStatusbar, WM_SIZE, 0, 0);
+}
+bool OnCreateStatusbar(HINSTANCE hInst, HWND hWnd) {
+	INITCOMMONCONTROLSEX iccx;
+	iccx.dwSize = sizeof(INITCOMMONCONTROLSEX);
+	iccx.dwICC = ICC_BAR_CLASSES;
+	if (!InitCommonControlsEx(&iccx))
+		return false;
+
+	RECT rc = { 0, 0, 0, 0 };
+	HWND hStatusbar = CreateWindowEx(0, STATUSCLASSNAME, 0,
+		SBARS_SIZEGRIP | WS_CHILD | WS_VISIBLE,
+		rc.left, rc.top, rc.right, rc.bottom,
+		hWnd, (HMENU)ID_STATUSBAR, hInst, 0);
+
+	SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)hStatusbar);
+
+	GetClientRect(hWnd, &rc);
+	int nHalf = rc.right / 2;
+	int nParts[4] = { nHalf, nHalf + nHalf / 3, nHalf + nHalf * 2 / 3, -1 };
+	SendMessage(hStatusbar, SB_SETPARTS, 4, (LPARAM)&nParts);
+
+	SendMessage(hStatusbar, SB_SETTEXT, 0, (LPARAM)L"Status Bar: Part 1");
+	SendMessage(hStatusbar, SB_SETTEXT, 1 | SBT_POPOUT, (LPARAM)L"Part 2");
+	SendMessage(hStatusbar, SB_SETTEXT, 2 | SBT_POPOUT, (LPARAM)L"Part 3");
+	SendMessage(hStatusbar, SB_SETTEXT, 3 | SBT_POPOUT, (LPARAM)L"Part 4");
+
+	return true;
 }

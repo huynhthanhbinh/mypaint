@@ -32,4 +32,8 @@ void changeMode(int& mode, int new_mode, UINT MenuItemID, HWND hWnd, HWND hToolb
 void enableCommand(HWND hFrameWnd, HWND hToolBarWnd, int mode);
 void disableCommand(HWND hFrameWnd, HWND hToolBarWnd);
 
+
+void OnStatusbarSize(HWND hWnd, int width);
+bool OnCreateStatusbar(HINSTANCE hInst, HWND hWnd);
+
 #endif // _MY_TOOLBAR_H_

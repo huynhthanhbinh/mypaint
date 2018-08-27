@@ -1426,6 +1426,7 @@ void initChildWindow(HWND hWnd, int nType) {
 	wndData->wndType = nType;
 	wndData->hWnd = hWnd;
 	wndData->rgbColor = RGB(0, 0, 0);
+	wndData->saved = true;
 
 	/*WCHAR s[100]; wsprintf(s, L"\n\n\nHWND = %d\n\n\n", wndData->hWnd); OutputDebugString(s);*/
 
