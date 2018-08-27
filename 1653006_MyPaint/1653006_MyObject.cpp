@@ -1263,19 +1263,31 @@ void OnOpen(HWND hWnd, HWND hwndMDIClient, WCHAR* szDrawTitle, WCHAR* szDrawWind
 		GetFileTitle(ofn.lpstrFile, FileTitle, (WORD)wcslen(FileTitle));
 		HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
 		SetWindowText(current, FileTitle);
-		CHILD_WND_DATA * wndData = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
-		wndData->arrObject = arrObject;
+		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
+		data->arrObject = arrObject;
 		arrObject.clear();
+
+		data->exist = true;
+		wcscpy(data->path, ofn.lpstrFile);
 	}
 	else
 		;//ErrorHandler();
 }
 bool OnSave(HWND hWnd, HWND hwndMDIClient) {
+	HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
+	CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
+	
+	if (data->exist == true) {
+		saveFile(data->arrObject, data->path);
+		MessageBox(hWnd, L"Successfully Save File !", L"SAVE FILE NOTICE", MB_OK);
+
+		data->saved = true;
+		return true;
+	}
+
 	OPENFILENAME ofn; // CTDL dùng cho dialog save
 	TCHAR szFile[256];
 	TCHAR szFilter[] = TEXT("Draw file (.drw)\0 * .drw\0Bitmap (.bmp)\0 * .bmp\0");
-
-	HWND current = (HWND)SendMessage(hwndMDIClient, WM_MDIGETACTIVE, 0, NULL);
 
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
@@ -1289,12 +1301,13 @@ bool OnSave(HWND hWnd, HWND hwndMDIClient) {
 	GetWindowText(current, szFile, MAX_LOADSTRING); // Get title of current child window
 													//int x = GetFileTitle(ofn.lpstrFile, ofn.lpstrFileTitle, sizeof(ofn.lpstrFile));
 	if (GetSaveFileName(&ofn)) {
-		CHILD_WND_DATA * data = (CHILD_WND_DATA *)GetWindowLongPtr(current, 0);
-
 		if (wcsstr(ofn.lpstrFile, L".drw")) {
 			saveFile(data->arrObject, ofn.lpstrFile);
 			MessageBox(hWnd, L"Successfully Save File !", L"SAVE FILE NOTICE", MB_OK);
+			
 			data->saved = true;
+			data->exist = true;
+			wcscpy(data->path, ofn.lpstrFile);
 			return true;
 		}
 		else if (wcsstr(ofn.lpstrFile, L".bmp")) {

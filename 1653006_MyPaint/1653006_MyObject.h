@@ -41,6 +41,8 @@ struct CHILD_WND_DATA {
 	vector <Work> arrRedo;
 
 	bool saved = false;
+	bool exist = false;
+	WCHAR path[MAX_PATH];
 };
 
 class MyLine : public Object {
