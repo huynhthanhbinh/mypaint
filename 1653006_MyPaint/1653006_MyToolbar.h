@@ -34,6 +34,6 @@ void disableCommand(HWND hFrameWnd, HWND hToolBarWnd);
 
 
 void OnStatusbarSize(HWND hWnd, int width);
-bool OnCreateStatusbar(HINSTANCE hInst, HWND hWnd);
+bool OnCreateStatusbar(HINSTANCE hInst, HWND hWnd, HWND& hStatusbar);
 
 #endif // _MY_TOOLBAR_H_

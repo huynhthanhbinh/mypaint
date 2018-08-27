@@ -1315,6 +1315,13 @@ bool OnSave(HWND hWnd, HWND hwndMDIClient) {
 		WCHAR FileTitle[MAX_LOADSTRING];
 		GetFileTitle(ofn.lpstrFile, FileTitle, (WORD)wcslen(FileTitle));
 		SetWindowText(current, FileTitle);
+
+
+		HWND hStatusbar = (HWND)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+		WCHAR str[128];
+		wcscpy(str, L"Child Window Active:    ");
+		wcscpy(str, wcscat(str, FileTitle));
+		SendMessage(hStatusbar, SB_SETTEXT, 0, (LPARAM)str);
 		return true;
 	}
 	else return false;//ErrorHandler();
@@ -1440,7 +1447,7 @@ void initChildWindow(HWND hWnd, int nType) {
 }
 void onNewDrawWnd(HWND hWnd, HWND& hwndMDIClient, WCHAR* szDrawTitle, WCHAR* szDrawWindowClass) {
 	static int i = 1;
-	wsprintf(szDrawTitle, L"Noname-%d.drw", i);
+	wsprintf(szDrawTitle, L"Noname-%d", i);
 	MDICREATESTRUCT mdiCreate;
 	ZeroMemory(&mdiCreate, sizeof(MDICREATESTRUCT));
 	mdiCreate.szClass = szDrawWindowClass;

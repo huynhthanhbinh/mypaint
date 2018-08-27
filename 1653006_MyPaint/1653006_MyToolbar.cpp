@@ -519,7 +519,7 @@ void OnStatusbarSize(HWND hWnd, int width) {
 	SendMessage(hStatusbar, SB_SETPARTS, 4, (LPARAM)&nParts);
 	SendMessage(hStatusbar, WM_SIZE, 0, 0);
 }
-bool OnCreateStatusbar(HINSTANCE hInst, HWND hWnd) {
+bool OnCreateStatusbar(HINSTANCE hInst, HWND hWnd, HWND& hStatusbar) {
 	INITCOMMONCONTROLSEX iccx;
 	iccx.dwSize = sizeof(INITCOMMONCONTROLSEX);
 	iccx.dwICC = ICC_BAR_CLASSES;
@@ -527,7 +527,7 @@ bool OnCreateStatusbar(HINSTANCE hInst, HWND hWnd) {
 		return false;
 
 	RECT rc = { 0, 0, 0, 0 };
-	HWND hStatusbar = CreateWindowEx(0, STATUSCLASSNAME, 0,
+	hStatusbar = CreateWindowEx(0, STATUSCLASSNAME, 0,
 		SBARS_SIZEGRIP | WS_CHILD | WS_VISIBLE,
 		rc.left, rc.top, rc.right, rc.bottom,
 		hWnd, (HMENU)ID_STATUSBAR, hInst, 0);
@@ -539,10 +539,10 @@ bool OnCreateStatusbar(HINSTANCE hInst, HWND hWnd) {
 	int nParts[4] = { nHalf, nHalf + nHalf / 3, nHalf + nHalf * 2 / 3, -1 };
 	SendMessage(hStatusbar, SB_SETPARTS, 4, (LPARAM)&nParts);
 
-	SendMessage(hStatusbar, SB_SETTEXT, 0, (LPARAM)L"Child Window Name:  %s");
-	SendMessage(hStatusbar, SB_SETTEXT, 1 | SBT_POPOUT, (LPARAM)L"Page Size:  %d x %d");
-	SendMessage(hStatusbar, SB_SETTEXT, 2 | SBT_POPOUT, (LPARAM)L"x =  %d");
-	SendMessage(hStatusbar, SB_SETTEXT, 3 | SBT_POPOUT, (LPARAM)L"y =  %d");
+	SendMessage(hStatusbar, SB_SETTEXT, 0, (LPARAM)L"Child Window Active:    ");
+	SendMessage(hStatusbar, SB_SETTEXT, 1 | SBT_POPOUT, (LPARAM)L"Page Size:    0 x 0");
+	SendMessage(hStatusbar, SB_SETTEXT, 2 | SBT_POPOUT, (LPARAM)L"x =    ");
+	SendMessage(hStatusbar, SB_SETTEXT, 3 | SBT_POPOUT, (LPARAM)L"y =    ");
 
 	return true;
 }
