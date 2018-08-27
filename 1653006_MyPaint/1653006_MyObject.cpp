@@ -1270,6 +1270,12 @@ void OnOpen(HWND hWnd, HWND hwndMDIClient, WCHAR* szDrawTitle, WCHAR* szDrawWind
 		data->saved = true;
 		data->exist = true;
 		wcscpy(data->path, ofn.lpstrFile);
+
+		HWND hStatusbar = (HWND)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+		WCHAR str[128];
+		wcscpy(str, L"Child Window Active:    ");
+		wcscpy(str, wcscat(str, FileTitle));
+		SendMessage(hStatusbar, SB_SETTEXT, 0, (LPARAM)str);
 	}
 	else
 		;//ErrorHandler();
