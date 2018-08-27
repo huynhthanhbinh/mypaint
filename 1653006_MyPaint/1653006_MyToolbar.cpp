@@ -539,10 +539,10 @@ bool OnCreateStatusbar(HINSTANCE hInst, HWND hWnd) {
 	int nParts[4] = { nHalf, nHalf + nHalf / 3, nHalf + nHalf * 2 / 3, -1 };
 	SendMessage(hStatusbar, SB_SETPARTS, 4, (LPARAM)&nParts);
 
-	SendMessage(hStatusbar, SB_SETTEXT, 0, (LPARAM)L"Status Bar: Part 1");
-	SendMessage(hStatusbar, SB_SETTEXT, 1 | SBT_POPOUT, (LPARAM)L"Part 2");
-	SendMessage(hStatusbar, SB_SETTEXT, 2 | SBT_POPOUT, (LPARAM)L"Part 3");
-	SendMessage(hStatusbar, SB_SETTEXT, 3 | SBT_POPOUT, (LPARAM)L"Part 4");
+	SendMessage(hStatusbar, SB_SETTEXT, 0, (LPARAM)L"Child Window Name:  %s");
+	SendMessage(hStatusbar, SB_SETTEXT, 1 | SBT_POPOUT, (LPARAM)L"Page Size:  %d x %d");
+	SendMessage(hStatusbar, SB_SETTEXT, 2 | SBT_POPOUT, (LPARAM)L"x =  %d");
+	SendMessage(hStatusbar, SB_SETTEXT, 3 | SBT_POPOUT, (LPARAM)L"y =  %d");
 
 	return true;
 }

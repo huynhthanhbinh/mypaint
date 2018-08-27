@@ -1,5 +1,2 @@
 ﻿  1653006_MyPaint.cpp
-  1653006_MyToolbar.cpp
-e:\1653006_programming_windows\1653006_mypaint\1653006_mypaint\1653006_mytoolbar.cpp(61): warning C4101: 'hBitmap': unreferenced local variable
-  Generating Code...
   1653006_MyPaint.vcxproj -> E:\1653006_Programming_Windows\1653006_mypaint\Debug\MyPaint.exe
