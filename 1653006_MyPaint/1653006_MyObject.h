@@ -40,7 +40,7 @@ struct CHILD_WND_DATA {
 	vector <Work> arrUndo;
 	vector <Work> arrRedo;
 
-	bool saved = false;
+	bool saved = true;
 	bool exist = false;
 	WCHAR path[MAX_PATH];
 };
@@ -119,6 +119,7 @@ void OnChooseFonts(HWND hWnd, HWND hwndMDIClient);
 void saveFile(vector <Object*>  arrObject, LPTSTR szFile);
 void openFile(vector <Object*>& arrObject, LPTSTR szFile);
 bool OnSave(HWND hWnd, HWND hwndMDIClient);
+bool OnPrint(HWND hWnd, HWND hwndMDIClient);
 void OnOpen(HWND hWnd, HWND hwndMDIClient, WCHAR* szDrawTitle, WCHAR* szDrawWindowClass);
 
 

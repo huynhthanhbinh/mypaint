@@ -86,7 +86,7 @@ void createToolbar(HWND hWnd, HWND& hToolBarWnd, bool& Toolbar_Exist)
 	{ STD_FILENEW,	ID_FILE_NEW,    TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"New (Ctrl + N)"},
 	{ STD_FILEOPEN,	ID_FILE_OPEN,   TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Open (Ctrl + O)" },
 	{ STD_FILESAVE,	ID_FILE_SAVE,   TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Save (Ctrl + S)" },
-	{ STD_PRINT,    ID_FILE_PRINT,	TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Print (Ctrl + P)" }
+	{ STD_PRINT,    ID_FILE_PRINT,	TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, (INT_PTR)L"Print Bitmap (Ctrl + P)" }
 	};
 
 	// create a toolbar
