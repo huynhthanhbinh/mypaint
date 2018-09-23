@@ -26,8 +26,8 @@ public:
 
 struct Work {
 	int id;
-	Object* obj = NULL;
-	Object* cur = NULL; // use for CHANGE
+	Object* pre = NULL; // previous
+	Object* obj = NULL; // current
 };
 
 struct CHILD_WND_DATA {

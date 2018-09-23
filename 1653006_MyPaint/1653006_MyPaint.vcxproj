@@ -190,9 +190,6 @@
     <Image Include="wnd_vertical.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <Library Include="x86\ComCtl32.Lib" />
     <Library Include="x86\ComDlg32.Lib" />
   </ItemGroup>
